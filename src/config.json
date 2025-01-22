@@ -1,0 +1,13 @@
+{
+    "app_name": "COTC",
+    "server": {
+      "host": "localhost",
+      "port": 8080
+    },
+
+    "logging": {
+      "level": "INFO",
+      "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+      "file_path": "../COTC_PROJECT/src/logs/app.log"
+    }
+  }
