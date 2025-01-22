@@ -1,14 +1,13 @@
 """This module contains the logger setup function."""
 
 import logging
-from config import Config 
+from config import config
 
 logger = logging.getLogger(__name__)
 
 def setup_logger():
     """Setup the logger."""
 
-    config: Config = Config()
     logging.basicConfig(
         level=config.logging.level, 
         format=config.logging.format, 
