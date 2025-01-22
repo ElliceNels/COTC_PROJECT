@@ -9,6 +9,7 @@ class ServerConfig(BaseModel):
     """Server configuration class."""
     host: str
     port: int
+    debug: bool
 
 class LoggingConfig(BaseModel):
     """Logging configuration class."""
@@ -48,3 +49,6 @@ class Config(BaseModel):
         
         # Initialize the configuration
         super().__init__(**data)
+
+# Create a singleton instance of the Config class to be used throughout the application
+config = Config()
