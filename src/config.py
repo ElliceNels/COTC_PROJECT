@@ -9,6 +9,7 @@ class ServerConfig(BaseModel):
     """Server configuration class."""
     host: str
     port: int
+    debug: bool
 
 class LoggingConfig(BaseModel):
     """Logging configuration class."""

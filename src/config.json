@@ -2,7 +2,8 @@
     "app_name": "COTC",
     "server": {
       "host": "localhost",
-      "port": 8080
+      "port": 5000,
+      "debug": false
     },
 
     "logging": {
