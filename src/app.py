@@ -4,6 +4,8 @@ import logging
 from flask import Flask
 from config import config
 
+from data.data_handler import DataHandler
+
 logger = logging.getLogger(__name__)
 
 def create_app():
@@ -19,12 +21,12 @@ def create_app():
         logger.info('You have landed on the landing page')
         return 'Land!'
 
-    @app.route('/temp')
-    def temp():
-        """Temporary page route."""
+    @app.route('/data')
+    def data():
+        """Data Generation page route."""
 
         ...
-        return 'Temp!'
+        return DataHandler.collect_local_metrics(True)
 
     return app
 
