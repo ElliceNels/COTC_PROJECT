@@ -21,9 +21,16 @@ def create_app():
         logger.info('You have landed on the landing page')
         return 'Land!'
 
-    @app.route('/data')
-    def data():
-        """Data Generation page route."""
+    @app.route('/tpdata')
+    def tp_data():
+        """Third Party Data Generation page route."""
+
+        ...
+        return DataHandler.collect_tp_metrics(True)
+
+    @app.route('/ldata')
+    def l_data():
+        """Local Data Generation page route."""
 
         ...
         return DataHandler.collect_local_metrics(True)
