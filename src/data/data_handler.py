@@ -1,7 +1,7 @@
 import json
 import socket
 from .metrics import Metrics
-from .metric import CPUUtilization, CPUTimes
+from .metric import CPUUtilization, CPUTimes, TemperatureInItaly, TemperatureFeelInItaly
 
 class DataHandler:
     local_metrics: Metrics = Metrics(device=socket.gethostname())
@@ -12,9 +12,8 @@ class DataHandler:
         DataHandler.local_metrics.add_metric(CPUTimes())
 
     def connect_tp_metrics():
-        # TODO: Add 3rd Party Measurements
-        # DataHandler.third_party_metrics.add_metric(---)
-        ...
+        DataHandler.third_party_metrics.add_metric(TemperatureInItaly())
+        DataHandler.third_party_metrics.add_metric(TemperatureFeelInItaly())
 
     def collect_local_metrics(save_flag: bool = False):
         data_list: list[dict] = []
@@ -28,10 +27,10 @@ class DataHandler:
 
     def collect_tp_metrics(save_flag: bool = False):
         data_list: list[dict] = []
-        # TODO: Add 3rd Party Measurements
-        # data_list.append(DataHandler.third_party_metrics.measure_metric(metric_type="---"))
+        data_list.append(DataHandler.third_party_metrics.measure_metric(metric_type="temperatureinitaly"))
+        data_list.append(DataHandler.third_party_metrics.measure_metric(metric_type="temperaturefeelinitaly"))
         if save_flag:
-            with open('data.json', 'a') as f:
+            with open('data.json', 'w') as f:
                 json.dump(data_list, f, indent=2)
         return data_list
     
