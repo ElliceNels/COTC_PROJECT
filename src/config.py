@@ -17,6 +17,10 @@ class LoggingConfig(BaseModel):
     format: str
     file_path: str
 
+class ThirdPartyAPIConfig(BaseModel):
+    """Third Party API configuration class."""
+    url: str
+
 class Config(BaseModel):
     """Singleton configuration class."""
 
@@ -25,6 +29,7 @@ class Config(BaseModel):
     app_name: str
     server: ServerConfig
     logging: LoggingConfig
+    third_party_api: ThirdPartyAPIConfig
 
     def __new__(cls, *args, **kwargs):
         """Singleton pattern enforcing on Config class creation."""
