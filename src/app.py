@@ -2,6 +2,7 @@
 
 import logging
 from flask import Flask
+from block_timer import BlockTimer
 from config import config
 
 from data.data_handler import DataHandler
@@ -26,14 +27,18 @@ def create_app():
         """Third Party Data Generation page route."""
 
         ...
-        return DataHandler.collect_tp_metrics(True)
+        with BlockTimer():
+            data: list = DataHandler.collect_tp_metrics(True)
+        return data
 
     @app.route('/ldata')
     def l_data():
         """Local Data Generation page route."""
 
         ...
-        return DataHandler.collect_local_metrics(True)
+        with BlockTimer():
+            data: list = DataHandler.collect_local_metrics(True)
+        return data
 
     return app
 
