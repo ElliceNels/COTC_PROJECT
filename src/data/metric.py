@@ -32,7 +32,7 @@ class Metric(ABC):
         return str(datetime.datetime.now().time())
 
     @abstractmethod
-    def measure(self, device: str, timestamp: int, value: float):
+    def measure(self, device: str, timestamp: int, value: float) -> DataFrame:
         """Measure the metric."""
         pass
 
@@ -49,7 +49,7 @@ class CPUUtilization(Metric):
             timestamp=self.get_timestamp(),
             value=value,
             unit=self.UNIT
-        ).serialize()
+        )
         logger.debug(data)
         return data
 
@@ -57,7 +57,7 @@ class CPUTimes(Metric):
     """Class to measure cpu times in user mode."""
     UNIT: str = 'seconds'
 
-    def measure(self, device: str):
+    def measure(self, device: str) -> DataFrame:
         """Measure the CPU user times."""
         value: float = psutil.cpu_times().user
         data: DataFrame = DataFrame(
@@ -66,7 +66,7 @@ class CPUTimes(Metric):
             timestamp=self.get_timestamp(),
             value=value,
             unit=self.UNIT
-        ).serialize()
+        )
         logger.debug(data)
         return data
 
@@ -74,7 +74,7 @@ class CPUTimes(Metric):
     """Class to measure cpu times in user mode."""
     UNIT: str = 'seconds'
 
-    def measure(self, device: str):
+    def measure(self, device: str) -> DataFrame:
         """Measure the CPU user times."""
         value: float = psutil.cpu_times().user
         data: DataFrame = DataFrame(
@@ -83,14 +83,14 @@ class CPUTimes(Metric):
             timestamp=self.get_timestamp(),
             value=value,
             unit=self.UNIT
-        ).serialize()
+        )
         logger.debug(data)
         return data
 
 class TemperatureInItaly(Metric):
     UNIT: str = 'Celsius'
 
-    def measure(self, device: str):
+    def measure(self, device: str) -> DataFrame:
         # API to weather data
         all_weather_data = requests.get(config.third_party_api.url).json()
         value = all_weather_data["main"]["temp"]
@@ -101,14 +101,14 @@ class TemperatureInItaly(Metric):
             timestamp=self.get_timestamp(),
             value=value,
             unit=self.UNIT
-        ).serialize()
+        )
         logger.debug(data)
         return data
 
 class TemperatureFeelInItaly(Metric):
     UNIT: str = 'Celsius'
 
-    def measure(self, device: str):
+    def measure(self, device: str) -> DataFrame:
         # API to weather data
         all_weather_data = requests.get(config.third_party_api.url).json()
         value = all_weather_data["main"]["feels_like"]
@@ -119,6 +119,6 @@ class TemperatureFeelInItaly(Metric):
             timestamp=self.get_timestamp(),
             value=value,
             unit=self.UNIT
-        ).serialize()
+        )
         logger.debug(data)
         return data

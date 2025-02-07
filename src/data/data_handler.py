@@ -17,8 +17,8 @@ class DataHandler:
 
     def collect_local_metrics(save_flag: bool = False):
         data_list: list[dict] = []
-        data_list.append(DataHandler.local_metrics.measure_metric(metric_type="CPUUTILIZATION"))
-        data_list.append(DataHandler.local_metrics.measure_metric(metric_type="CPUTimes"))
+        data_list.append(DataHandler.local_metrics.measure_metric(metric_type="CPUUTILIZATION").serialize())
+        data_list.append(DataHandler.local_metrics.measure_metric(metric_type="CPUTimes").serialize())
         if save_flag:
             with open('data.json', 'w') as f:
                 json.dump(data_list, f, indent=2)
@@ -27,8 +27,8 @@ class DataHandler:
 
     def collect_tp_metrics(save_flag: bool = False):
         data_list: list[dict] = []
-        data_list.append(DataHandler.third_party_metrics.measure_metric(metric_type="temperatureinitaly"))
-        data_list.append(DataHandler.third_party_metrics.measure_metric(metric_type="temperaturefeelinitaly"))
+        data_list.append(DataHandler.third_party_metrics.measure_metric(metric_type="temperatureinitaly").serialize())
+        data_list.append(DataHandler.third_party_metrics.measure_metric(metric_type="temperaturefeelinitaly").serialize())
         if save_flag:
             with open('data.json', 'w') as f:
                 json.dump(data_list, f, indent=2)
