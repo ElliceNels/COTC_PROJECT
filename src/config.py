@@ -40,7 +40,7 @@ class Config(BaseModel):
         # Else, return the existing instance
         return cls._instance
 
-    def __init__(self, filepath: str = "../COTC_PROJECT/src/config.json"):
+    def __init__(self, filepath: str = "/home/ellicenelson/cotc/COTC_PROJECT/src/config.json"):
         """Load the configuration from a JSON file."""
 
         # Load the JSON config file
