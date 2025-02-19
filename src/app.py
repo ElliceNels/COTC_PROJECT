@@ -26,9 +26,8 @@ def create_app():
     def tp_data():
         """Third Party Data Generation page route."""
 
-        ...
         with BlockTimer():
-            data: list = DataHandler.collect_tp_metrics(True)
+            data: list = DataHandler.collect_tp_metrics(False)
         return data
 
     @app.route('/ldata')
@@ -37,7 +36,7 @@ def create_app():
 
         ...
         with BlockTimer():
-            data: list = DataHandler.collect_local_metrics(True)
+            data: list = DataHandler.collect_local_metrics(False)
         return data
 
     return app

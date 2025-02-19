@@ -32,7 +32,7 @@ class Metric(ABC):
         return str(datetime.datetime.now().time())
 
     @abstractmethod
-    def measure(self, device: str, timestamp: int, value: float) -> DataFrame:
+    def measure(self, device: str) -> DataFrame:
         """Measure the metric."""
         pass
 

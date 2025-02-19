@@ -24,10 +24,11 @@ class Metrics:
 
     def measure_metrics(self) -> list[DataFrame]:
         """Measure all tracked metrics."""
-        list_data: str = []
+        list_data = []
         for metric in self.metrics:
             data = metric.measure(self.device)
             list_data.append(data)
+        return list_data
 
     def measure_metric(self, metric_type: str) -> DataFrame:
         """Measure a specific tracked metric."""
