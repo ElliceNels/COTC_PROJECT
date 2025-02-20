@@ -14,5 +14,9 @@
 
     "third_party_api": {
       "url": "https://api.openweathermap.org/data/2.5/weather?lat=41.8719&lon=12.5674&appid=fa728ee9341a1745cc22a7d6478a18b7&units=metric"
+    },
+
+    "database": {
+      "db_engine": "sqlite:///metrics.db"
     }
   }

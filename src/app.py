@@ -18,7 +18,7 @@ def create_app():
     app: Flask = Flask(config.app_name)
     logger.debug('App "%s"created in %s', app.name, __name__)
 
-    engine = create_engine('sqlite:///metrics.db')
+    engine = create_engine(config.database.db_engine)
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
 

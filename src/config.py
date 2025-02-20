@@ -11,6 +11,10 @@ class ServerConfig(BaseModel):
     port: int
     debug: bool
 
+class DatabaseConfig(BaseModel):
+    """Database configuration class."""
+    db_engine: str
+
 class LoggingConfig(BaseModel):
     """Logging configuration class."""
     level: str
@@ -30,6 +34,7 @@ class Config(BaseModel):
     server: ServerConfig
     logging: LoggingConfig
     third_party_api: ThirdPartyAPIConfig
+    database: DatabaseConfig
 
     def __new__(cls, *args, **kwargs):
         """Singleton pattern enforcing on Config class creation."""
