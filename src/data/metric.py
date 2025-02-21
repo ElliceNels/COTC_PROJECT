@@ -100,6 +100,7 @@ class TemperatureInItaly(Metric):
     UNIT: str = 'Celsius'
 
     def measure(self, device: str) -> DataFrame:
+        """Measure the temperature in Italy from a 3rd Party API."""
         if (cache := super().measure(device)):
             return cache
 
@@ -122,6 +123,7 @@ class TemperatureFeelInItaly(Metric):
     UNIT: str = 'Celsius'
 
     def measure(self, device: str) -> DataFrame:
+        """Measure the temperature feel in Italy from a 3rd Party API."""
         if (cache := super().measure(device)):
             return cache
 
