@@ -11,4 +11,4 @@ class MetricReading(Base):
     metric_type = Column(String, nullable=False)
     timestamp = Column(String, nullable=False)
     value = Column(Float, nullable=False)
-    unit = Column(String, nullable=False)
+    unit = Column(String, nullable=True)
