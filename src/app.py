@@ -1,7 +1,7 @@
 """Flask application module."""
 
 import logging
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from block_timer import BlockTimer
@@ -80,6 +80,14 @@ def create_app():
         ]
         session.close()
         return jsonify(metrics_list), 200
+
+    @app.route('/metrics')
+    def metrics():
+        """Metrics page route."""
+        session = Session()
+        metrics = session.query(MetricReading).all()
+        session.close()
+        return render_template('metrics.html', metrics=metrics)
 
     return app
 

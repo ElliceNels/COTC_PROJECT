@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Metrics{% endblock %}
+
+{% block content %}
+<h2>Metrics</h2>
+{% for metric in metrics %}
+<div class="metric">
+    <h3>{{ metric.metric_type }}</h3>
+    <p>Device: {{ metric.device }}</p>
+    <p>Timestamp: {{ metric.timestamp }}</p>
+    <p>Value: {{ metric.value }} {{ metric.unit }}</p>
+</div>
+{% endfor %}
+{% endblock %}
