@@ -68,23 +68,7 @@ class CPUTimes(Metric):
             unit=self.UNIT
         )
         logger.debug(data)
-        return data
-
-class CPUTimes(Metric):
-    """Class to measure cpu times in user mode."""
-    UNIT: str = 'seconds'
-
-    def measure(self, device: str) -> DataFrame:
-        """Measure the CPU user times."""
-        value: float = psutil.cpu_times().user
-        data: DataFrame = DataFrame(
-            device=device,
-            metric=self.get_metric_type(),
-            timestamp=self.get_timestamp(),
-            value=value,
-            unit=self.UNIT
-        )
-        logger.debug(data)
+        self.cache = (data, self.get_timestamp())
         return data
 
 class TemperatureInItaly(Metric):
