@@ -25,9 +25,8 @@ def create_app():
     @app.route('/')
     def landing_page():
         """Landing page route."""
-
-        logger.info('You have landed on the landing page')
-        return 'Land!'
+        logger.debug('Redirecting to /metrics')
+        return metrics()
 
     @app.route('/store_metrics', methods=['POST'])
     def store_metrics():
