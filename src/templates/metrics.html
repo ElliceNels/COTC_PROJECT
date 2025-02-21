@@ -4,12 +4,11 @@
 
 {% block content %}
 <h2>Metrics</h2>
-{% for metric in metrics %}
-<div class="metric">
-    <h3>{{ metric.metric_type }}</h3>
-    <p>Device: {{ metric.device }}</p>
-    <p>Timestamp: {{ metric.timestamp }}</p>
-    <p>Value: {{ metric.value }} {{ metric.unit }}</p>
-</div>
-{% endfor %}
+<ul>
+    {% for metric_type in metric_types %}
+    <li>
+        <a href="{{ url_for('metric_detail', metric_type=metric_type) }}">{{ metric_type }}</a>
+    </li>
+    {% endfor %}
+</ul>
 {% endblock %}

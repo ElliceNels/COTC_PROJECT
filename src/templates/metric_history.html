@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Metric History{% endblock %}
+
+{% block content %}
+<h2>Metric History for {{ metric_type }}</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Device</th>
+            <th>Timestamp</th>
+            <th>Value</th>
+            <th>Unit</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for metric in metrics %}
+        <tr>
+            <td>{{ metric.device }}</td>
+            <td>{{ metric.timestamp }}</td>
+            <td>{{ metric.value }}</td>
+            <td>{{ metric.unit }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{{ url_for('metrics') }}">Back to Metrics</a>
+{% endblock %}
