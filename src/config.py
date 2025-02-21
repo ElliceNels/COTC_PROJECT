@@ -24,6 +24,7 @@ class LoggingConfig(BaseModel):
 class ThirdPartyAPIConfig(BaseModel):
     """Third Party API configuration class."""
     url: str
+    cache_timeout_m: float
 
 class Config(BaseModel):
     """Singleton configuration class."""
