@@ -29,22 +29,6 @@ def create_app():
         logger.info('You have landed on the landing page')
         return 'Land!'
 
-    @app.route('/tpdata')
-    def tp_data():
-        """Third Party Data Generation page route."""
-
-        with BlockTimer():
-            data: list = DataHandler.collect_tp_metrics(False)
-        return {'data': data}
-
-    @app.route('/ldata')
-    def l_data():
-        """Local Data Generation page route."""
-
-        with BlockTimer():
-            data: list = DataHandler.collect_local_metrics(False)
-        return {'data': data}
-
     @app.route('/store_metrics', methods=['POST'])
     def store_metrics():
         """Store metrics in the database."""
@@ -85,9 +69,28 @@ def create_app():
     def metrics():
         """Metrics page route."""
         session = Session()
-        metrics = session.query(MetricReading).all()
+        metric_types = session.query(MetricReading.metric_type).distinct().all()
         session.close()
-        return render_template('metrics.html', metrics=metrics)
+        return render_template('metrics.html', metric_types=[mt[0] for mt in metric_types])
+
+    @app.route('/metric/<metric_type>')
+    def metric_detail(metric_type):
+        """Individual metric detail page route."""
+        session = Session()
+        recent_metric = session.query(MetricReading).filter_by(metric_type=metric_type).order_by(MetricReading.timestamp.desc()).first()
+        session.close()
+        if recent_metric is None:
+            logger.error('No metric found for type: %s', metric_type)
+            return render_template('metric_detail.html', metric=None), 404
+        return render_template('metric_detail.html', metric=recent_metric)
+
+    @app.route('/metric/<metric_type>/history')
+    def metric_history(metric_type):
+        """Metric history page route."""
+        session = Session()
+        metrics = session.query(MetricReading).filter_by(metric_type=metric_type).order_by(MetricReading.timestamp.desc()).all()
+        session.close()
+        return render_template('metric_history.html', metrics=metrics, metric_type=metric_type)
 
     return app
 
