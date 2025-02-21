@@ -56,7 +56,7 @@ class Metric(ABC):
 
 class CPUUtilization(Metric):
     """Class to measure the CPU utilisation."""
-    UNIT: str = 'percent'
+    UNIT: str = 'Percent'
     
     def measure(self, device: str):
         """Measure the CPU Utilisation."""
@@ -77,7 +77,7 @@ class CPUUtilization(Metric):
 
 class CPUTimes(Metric):
     """Class to measure cpu times in user mode."""
-    UNIT: str = 'seconds'
+    UNIT: str = 'Seconds'
 
     def measure(self, device: str) -> DataFrame:
         """Measure the CPU user times."""
