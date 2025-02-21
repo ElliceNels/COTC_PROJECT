@@ -35,7 +35,7 @@ class Metric(ABC):
 
     def get_timestamp(self):
         """Return the current time."""
-        return str(datetime.datetime.now().time())
+        return datetime.datetime.now().time().strftime('%H:%M:%S.%f')[:-5]
 
     @abstractmethod
     def measure(self, device: str) -> DataFrame:
