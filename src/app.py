@@ -7,7 +7,6 @@ from sqlalchemy import create_engine
 from block_timer import BlockTimer
 from config import config
 
-from data.data_handler import DataHandler
 from data.models import Base, MetricReading
 
 logger = logging.getLogger(__name__)
@@ -28,6 +27,7 @@ def create_app():
         logger.debug('Redirecting to /metrics')
         return metrics()
 
+    # PJ: Aggregator API (Stores in the DB)
     @app.route('/store_metrics', methods=['POST'])
     def store_metrics():
         """Store metrics in the database."""
@@ -64,6 +64,7 @@ def create_app():
         session.close()
         return jsonify(metrics_list), 200
 
+    # PJ: Reporting API (Sends DB data to System Reports)
     @app.route('/metrics')
     def metrics():
         """Metrics page route."""
@@ -72,6 +73,7 @@ def create_app():
         session.close()
         return render_template('metrics.html', metric_types=[mt[0] for mt in metric_types])
 
+    # PJ: Reporting API (Sends DB data to System Reports)
     @app.route('/metric/<metric_type>')
     def metric_detail(metric_type):
         """Individual metric detail page route."""
@@ -83,6 +85,7 @@ def create_app():
             return render_template('metric_detail.html', metric=None), 404
         return render_template('metric_detail.html', metric=recent_metric)
 
+    # PJ: Reporting API (Sends DB data to System Reports)
     @app.route('/metric/<metric_type>/history')
     def metric_history(metric_type):
         """Metric history page route."""
