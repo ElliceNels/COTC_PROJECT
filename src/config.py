@@ -1,5 +1,6 @@
 """Configuration module."""
 
+from pathlib import Path
 import json
 import os
 from typing import ClassVar, Optional
@@ -48,21 +49,11 @@ class Config(BaseModel):
         # Else, return the existing instance
         return cls._instance
 
-    def __init__(self, filepath: str = "src/config.json"):
+    def __init__(self, rel_path: str = "config.json"):
         """Load the configuration from a JSON file."""
 
-        # Walk through directories to find the config file recursively
-        def find_config_file(start_dir, target_file):
-            for root, dirs, files in os.walk(start_dir):
-                if target_file in files:
-                    return os.path.join(root, target_file)
-            return None
-
-        start_dir = os.path.abspath(os.path.dirname(filepath))
-        config_file_path = find_config_file(start_dir, os.path.basename(filepath))
-
-        if config_file_path is None:
-            raise FileNotFoundError(f'File not found: {filepath}')
+        script_dir = Path(__file__).parent
+        filepath = script_dir / rel_path
 
 
         # Load the JSON config file
