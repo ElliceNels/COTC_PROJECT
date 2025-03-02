@@ -9,7 +9,7 @@
     "logging": {
       "level": "INFO",
       "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-      "file_path": "/home/ellicenelson/cotc/COTC_PROJECT/src/logs/app.log"
+      "file_path": "src/logs/app.log"
     },
 
     "third_party_api": {

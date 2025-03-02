@@ -1,6 +1,7 @@
 """Configuration module."""
 
 import json
+import os
 from typing import ClassVar, Optional
 from pydantic import BaseModel
 
@@ -47,8 +48,18 @@ class Config(BaseModel):
         # Else, return the existing instance
         return cls._instance
 
-    def __init__(self, filepath: str = "/home/ellicenelson/cotc/COTC_PROJECT/src/config.json"):
+    def __init__(self, filepath: str = "src/config.json"):
         """Load the configuration from a JSON file."""
+
+        # Walk through directories to find the config file
+        current_dir = os.path.abspath(os.path.dirname(filepath))
+        while not os.path.isfile(filepath):
+            parent_dir = os.path.dirname(current_dir)
+            if parent_dir == current_dir:
+                raise FileNotFoundError(f'File not found: {filepath}')
+            current_dir = parent_dir
+            filepath = os.path.join(current_dir, os.path.basename(filepath))
+
 
         # Load the JSON config file
         try:
