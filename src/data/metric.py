@@ -7,7 +7,7 @@ import requests
 
 from config import config
 
-from .data_frame import DataFrame
+from .dto import DeviceDTO, MetricReadingDTO, UnitDTO, MetricTypeDTO
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +20,7 @@ class Metric(ABC):
     def __init__(self):
         super().__init__()
         self.cache: tuple = (None, None)
+        self.metric_type = MetricTypeDTO(id=-1, name=self.get_metric_type())
 
     def __eq__(self, other_metric_type: str):
         """Check if the metric type is equal to another metric type."""
@@ -38,7 +39,7 @@ class Metric(ABC):
         return datetime.datetime.now().time().strftime('%H:%M:%S.%f')[:-5]
 
     @abstractmethod
-    def measure(self, device: str) -> DataFrame:
+    def measure(self, device: DeviceDTO) -> MetricReadingDTO:
         """Measure the metric."""
         if self.cache[self.DATA_INDEX] and self.cache[self.TIME_UPDATED_INDEX]:
             # Get time difference
@@ -56,20 +57,21 @@ class Metric(ABC):
 
 class CPUUtilization(Metric):
     """Class to measure the CPU utilisation."""
-    UNIT: str = 'Percent'
+    UNIT_DTO: UnitDTO = UnitDTO(id=-1, name='Percent')
     
-    def measure(self, device: str):
+    def measure(self, device: DeviceDTO):
         """Measure the CPU Utilisation."""
         if (cache := super().measure(device)):
             return cache
         
         value: float = psutil.cpu_percent(interval=1)
-        data: DataFrame = DataFrame(
+        data = MetricReadingDTO(
+            id=-1,
             device=device,
-            metric=self.get_metric_type(),
+            metric_type=self.metric_type,
             timestamp=self.get_timestamp(),
             value=value,
-            unit=self.UNIT
+            unit=self.UNIT_DTO
         )
         logger.debug(data)
         self.cache = (data, self.get_timestamp())
@@ -77,29 +79,30 @@ class CPUUtilization(Metric):
 
 class CPUTimes(Metric):
     """Class to measure cpu times in user mode."""
-    UNIT: str = 'Seconds'
+    UNIT_DTO: UnitDTO = UnitDTO(id=-1, name='Seconds')
 
-    def measure(self, device: str) -> DataFrame:
+    def measure(self, device: DeviceDTO) -> MetricReadingDTO:
         """Measure the CPU user times."""
         if (cache := super().measure(device)):
             return cache
 
         value: float = psutil.cpu_times().user
-        data: DataFrame = DataFrame(
+        data = MetricReadingDTO(
+            id=-1,
             device=device,
-            metric=self.get_metric_type(),
+            metric_type=self.metric_type,
             timestamp=self.get_timestamp(),
             value=value,
-            unit=self.UNIT
+            unit=self.UNIT_DTO
         )
         logger.debug(data)
         self.cache = (data, self.get_timestamp())
         return data
 
 class TemperatureInItaly(Metric):
-    UNIT: str = 'Celsius'
+    UNIT_DTO: UnitDTO = UnitDTO(id=-1, name='Celsius')
 
-    def measure(self, device: str) -> DataFrame:
+    def measure(self, device: DeviceDTO) -> MetricReadingDTO:
         """Measure the temperature in Italy from a 3rd Party API."""
         if (cache := super().measure(device)):
             return cache
@@ -108,21 +111,22 @@ class TemperatureInItaly(Metric):
         all_weather_data = requests.get(config.third_party_api.url).json()
         value = all_weather_data["main"]["temp"]
 
-        data: DataFrame = DataFrame(
+        data = MetricReadingDTO(
+            id=-1,
             device=device,
-            metric=self.get_metric_type(),
+            metric_type=self.metric_type,
             timestamp=self.get_timestamp(),
             value=value,
-            unit=self.UNIT
+            unit=self.UNIT_DTO
         )
         logger.debug(data)
         self.cache = (data, self.get_timestamp())
         return data
 
 class TemperatureFeelInItaly(Metric):
-    UNIT: str = 'Celsius'
+    UNIT_DTO: UnitDTO = UnitDTO(id=-1, name='Celsius')
 
-    def measure(self, device: str) -> DataFrame:
+    def measure(self, device: DeviceDTO) -> MetricReadingDTO:
         """Measure the temperature feel in Italy from a 3rd Party API."""
         if (cache := super().measure(device)):
             return cache
@@ -131,12 +135,13 @@ class TemperatureFeelInItaly(Metric):
         all_weather_data = requests.get(config.third_party_api.url).json()
         value = all_weather_data["main"]["feels_like"]
 
-        data: DataFrame = DataFrame(
+        data = MetricReadingDTO(
+            id=-1,
             device=device,
-            metric=self.get_metric_type(),
+            metric_type=self.metric_type,
             timestamp=self.get_timestamp(),
             value=value,
-            unit=self.UNIT
+            unit=self.UNIT_DTO
         )
         logger.debug(data)
         self.cache = (data, self.get_timestamp())

@@ -4,10 +4,10 @@ import logging
 from flask import Flask, request, jsonify, render_template
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-from block_timer import BlockTimer
 from config import config
 
-from data.models import Base, MetricReading
+from data.dto import DeviceDTO, MetricTypeDTO, UnitDTO
+from data.models import Base, MetricReading, Device, MetricType, Unit
 
 logger = logging.getLogger(__name__)
 
@@ -21,78 +21,101 @@ def create_app():
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
 
-    @app.route('/')
-    def landing_page():
-        """Landing page route."""
-        logger.debug('Redirecting to /metrics')
-        return metrics()
+    # @app.route('/')
+    # def landing_page():
+    #     """Landing page route."""
+    #     logger.debug('Redirecting to /metrics')
+    #     return metrics()
 
     # PJ: Aggregator API (Stores in the DB)
     @app.route('/store_metrics', methods=['POST'])
     def store_metrics():
         """Store metrics in the database."""
-        session = Session()
         metrics_data = request.json
-        for data in metrics_data:
-            metric_reading = MetricReading(
-                device=data['device'],
-                metric_type=data['metric'],
-                timestamp=data['timestamp'],
-                value=data['value'],
-                unit=data['unit']
-            )
-            session.add(metric_reading)
-        session.commit()
-        session.close()
-        return jsonify({'status': 'success'}), 201
+        if not metrics_data:
+            logger.error('No data provided for storing metrics')
+            return jsonify({'error': 'No data provided'}), 400
 
-    @app.route('/get_metrics', methods=['GET'])
-    def get_metrics():
-        """Retrieve metrics from the database."""
         session = Session()
-        metrics = session.query(MetricReading).all()
-        metrics_list = [
-            {
-                'device': metric.device,
-                'metric_type': metric.metric_type,
-                'timestamp': metric.timestamp,
-                'value': metric.value,
-                'unit': metric.unit
-            }
-            for metric in metrics
-        ]
-        session.close()
-        return jsonify(metrics_list), 200
+        try:
+            for data in metrics_data:
+                # Map incoming data into DTOs
+                device_dto = DeviceDTO(id=data['device']['id'], name=data['device']['name'])
+                metric_type_dto = MetricTypeDTO(id=data['metric_type']['id'], name=data['metric_type']['name'])
+                unit_dto = UnitDTO(id=data['unit']['id'], name=data['unit']['name']) if data.get('unit') else None
 
-    # PJ: Reporting API (Sends DB data to System Reports)
-    @app.route('/metrics')
-    def metrics():
-        """Metrics page route."""
-        session = Session()
-        metric_types = session.query(MetricReading.metric_type).distinct().all()
-        session.close()
-        return render_template('metrics.html', metric_types=[mt[0] for mt in metric_types])
+                # Check if Device exists or create it
+                device = session.query(Device).filter_by(id=device_dto.id).first()
+                if not device:
+                    device = Device(name=device_dto.name, id=device_dto.id)
+                    session.add(device)
+                
+                # Check if MetricType exists or create it
+                metric_type = session.query(MetricType).filter_by(name=metric_type_dto.name).first()
+                if not metric_type:
+                    metric_type = MetricType(name=metric_type_dto.name)
+                    session.add(metric_type)
+                
+                # Check if Unit exists or create it
+                if unit_dto:
+                    unit = session.query(Unit).filter_by(name=unit_dto.name).first()
+                    if not unit:
+                        unit = Unit(name=unit_dto.name)
+                        session.add(unit)
+                
+                session.flush()
+                session.commit()
 
-    # PJ: Reporting API (Sends DB data to System Reports)
-    @app.route('/metric/<metric_type>')
-    def metric_detail(metric_type):
-        """Individual metric detail page route."""
-        session = Session()
-        recent_metric = session.query(MetricReading).filter_by(metric_type=metric_type).order_by(MetricReading.timestamp.desc()).first()
-        session.close()
-        if recent_metric is None:
-            logger.error('No metric found for type: %s', metric_type)
-            return render_template('metric_detail.html', metric=None), 404
-        return render_template('metric_detail.html', metric=recent_metric)
+                # Create MetricReading record using DTO data
+                metric_reading = MetricReading(
+                    device_id=device.id,
+                    metric_type_id=metric_type.id,
+                    timestamp=data['timestamp'],
+                    value=data['value'],
+                    unit_id=unit.id if unit else None
+                )
+                session.add(metric_reading)
 
-    # PJ: Reporting API (Sends DB data to System Reports)
-    @app.route('/metric/<metric_type>/history')
-    def metric_history(metric_type):
-        """Metric history page route."""
-        session = Session()
-        metrics = session.query(MetricReading).filter_by(metric_type=metric_type).order_by(MetricReading.timestamp.desc()).all()
-        session.close()
-        return render_template('metric_history.html', metrics=metrics, metric_type=metric_type)
+            # Commit the session
+            session.commit()
+            logger.info('Metrics stored successfully')
+            return jsonify({'status': 'success'}), 201
+        except Exception as e:
+            session.rollback()
+            logger.error('Error storing metrics: %s', e)
+            return jsonify({'error': 'Failed to store metrics'}), 500
+        finally:
+            session.close()
+
+    # # PJ: Reporting API (Sends DB data to System Reports)
+    # @app.route('/metrics')
+    # def metrics():
+    #     """Metrics page route."""
+    #     session = Session()
+    #     metric_types = session.query(MetricReading.metric_type).distinct().all()
+    #     session.close()
+    #     return render_template('metrics.html', metric_types=[mt[0] for mt in metric_types])
+
+    # # PJ: Reporting API (Sends DB data to System Reports)
+    # @app.route('/metric/<metric_type>')
+    # def metric_detail(metric_type):
+    #     """Individual metric detail page route."""
+    #     session = Session()
+    #     recent_metric = session.query(MetricReading).filter_by(metric_type=metric_type).order_by(MetricReading.timestamp.desc()).first()
+    #     session.close()
+    #     if recent_metric is None:
+    #         logger.error('No metric found for type: %s', metric_type)
+    #         return render_template('metric_detail.html', metric=None), 404
+    #     return render_template('metric_detail.html', metric=recent_metric)
+
+    # # PJ: Reporting API (Sends DB data to System Reports)
+    # @app.route('/metric/<metric_type>/history')
+    # def metric_history(metric_type):
+    #     """Metric history page route."""
+    #     session = Session()
+    #     metrics = session.query(MetricReading).filter_by(metric_type=metric_type).order_by(MetricReading.timestamp.desc()).all()
+    #     session.close()
+    #     return render_template('metric_history.html', metrics=metrics, metric_type=metric_type)
 
     return app
 

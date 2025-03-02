@@ -23,6 +23,7 @@ class LoggingConfig(BaseModel):
 
 class ThirdPartyAPIConfig(BaseModel):
     """Third Party API configuration class."""
+    name: str
     url: str
     cache_timeout_m: float
 

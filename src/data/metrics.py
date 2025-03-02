@@ -1,13 +1,13 @@
 """Metrics module to track metrics"""
-from data.data_frame import DataFrame
+from data.dto import DeviceDTO, MetricReadingDTO
 from .metric import Metric
 
 class Metrics:
     """Class to manage metrics."""
 
-    def __init__(self, device: str):
+    def __init__(self, device_dto: DeviceDTO):
         """Initialise the metrics."""
-        self.device: str = device
+        self.device_dto: DeviceDTO = device_dto
         self.metrics: set[Metric] = set()
 
     def add_metric(self, metric: Metric):
@@ -22,17 +22,17 @@ class Metrics:
         """Return the metrics set to be track."""
         return [metric.get_metric_type() for metric in self.metrics]
 
-    def measure_metrics(self) -> list[DataFrame]:
+    def measure_metrics(self) -> list[MetricReadingDTO]:
         """Measure all tracked metrics."""
-        list_data = []
+        list_data: list[MetricReadingDTO] = []
         for metric in self.metrics:
-            data = metric.measure(self.device)
+            data = metric.measure(self.device_dto)
             list_data.append(data)
         return list_data
 
-    def measure_metric(self, metric_type: str) -> DataFrame:
+    def measure_metric(self, metric_type: str) -> MetricReadingDTO:
         """Measure a specific tracked metric."""
         for metric in self.metrics:
             if metric.get_metric_type() == metric_type.lower():
-                data: DataFrame = metric.measure(self.device)
+                data: MetricReadingDTO = metric.measure(self.device_dto)
                 return data

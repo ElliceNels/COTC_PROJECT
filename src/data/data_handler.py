@@ -1,13 +1,36 @@
 import json
+import logging
 import socket
 from time import sleep
+import uuid
 import requests
+from config import config
+
+from data.dto import DeviceDTO
 from .metrics import Metrics
 from .metric import CPUUtilization, CPUTimes, TemperatureInItaly, TemperatureFeelInItaly
 
+logger = logging.getLogger(__name__)
 class DataHandler:
-    local_metrics: Metrics = Metrics(device=socket.gethostname())
-    third_party_metrics: Metrics = Metrics(device="Third Party")
+    local_metrics: Metrics = Metrics(
+        device_dto=DeviceDTO(
+            id=uuid.uuid5(
+                uuid.NAMESPACE_DNS,
+                str(uuid.getnode())
+            ),
+            name=socket.gethostname()
+        )
+    )
+
+    third_party_metrics: Metrics = Metrics(
+        device_dto=DeviceDTO(
+            id=uuid.uuid5(
+                uuid.NAMESPACE_DNS,
+                config.third_party_api.url
+            ),
+            name=config.third_party_api.name
+        )
+    )
 
     @staticmethod
     def connect_local_metrics():
