@@ -1,7 +1,7 @@
 import argparse
 import logging
 from app import launch_app
-from data.data_handler import DataHandler
+from data.metrics_collector import MetricsCollector
 from logger import setup_logger
 import threading
 
@@ -22,7 +22,7 @@ def main():
         launch_app()
     if args.c:
         logger.info('Starting the data collector')
-        DataHandler.data_collector()
+        MetricsCollector.collect_data()
     else:
         logger.info('DEFAULT: Starting the application')
         launch_app()
