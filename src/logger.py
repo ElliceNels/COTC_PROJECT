@@ -11,7 +11,7 @@ def setup_logger():
     # Walk through directories to find the config file
     # Check if it exists and create it if it doesn't exist
     current_dir = os.path.abspath(os.path.dirname(config.logging.file_path))
-    while not os.path.isfile(filepath):
+    while not os.path.isfile(config.logging.file_path):
         parent_dir = os.path.dirname(current_dir)
         if parent_dir == current_dir:
             log_dir = os.path.dirname(config.logging.file_path)
