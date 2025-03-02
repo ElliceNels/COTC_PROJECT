@@ -33,6 +33,6 @@ class Metrics:
     def measure_metric(self, metric_type: str) -> MetricReadingDTO:
         """Measure a specific tracked metric."""
         for metric in self.metrics:
-            if metric.get_metric_type() == metric_type.lower():
+            if metric.get_metric_type().lower() == metric_type.lower():
                 data: MetricReadingDTO = metric.measure(self.device_dto)
                 return data

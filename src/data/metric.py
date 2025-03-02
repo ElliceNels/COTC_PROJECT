@@ -32,7 +32,7 @@ class Metric(ABC):
 
     def get_metric_type(self):
         """Return the metric type."""
-        return self.__class__.__name__.lower()
+        return self.__class__.__name__
 
     def get_timestamp(self):
         """Return the current time."""
