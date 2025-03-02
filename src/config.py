@@ -51,14 +51,18 @@ class Config(BaseModel):
     def __init__(self, filepath: str = "src/config.json"):
         """Load the configuration from a JSON file."""
 
-        # Walk through directories to find the config file
-        current_dir = os.path.abspath(os.path.dirname(filepath))
-        while not os.path.isfile(filepath):
-            parent_dir = os.path.dirname(current_dir)
-            if parent_dir == current_dir:
-                raise FileNotFoundError(f'File not found: {filepath}')
-            current_dir = parent_dir
-            filepath = os.path.join(current_dir, os.path.basename(filepath))
+        # Walk through directories to find the config file recursively
+        def find_config_file(start_dir, target_file):
+            for root, dirs, files in os.walk(start_dir):
+                if target_file in files:
+                    return os.path.join(root, target_file)
+            return None
+
+        start_dir = os.path.abspath(os.path.dirname(filepath))
+        config_file_path = find_config_file(start_dir, os.path.basename(filepath))
+
+        if config_file_path is None:
+            raise FileNotFoundError(f'File not found: {filepath}')
 
 
         # Load the JSON config file
