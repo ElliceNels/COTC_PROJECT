@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+h1 {
+    text-align: center;
+}
+
+.dash-dropdown {
+    text-align: center;
+    font-size: 14px;
+}
+
+.dash-graph {
+    width: 80%;
+    margin: 20px auto; /* Add margin to all sides of the graph */
+    font-size: 14px;
+    padding: 20px; /* Add padding to all sides of the graph */
+}
+
+.dash-table {
+    width: 80%;
+    margin: 20px auto; /* Add margin to all sides of the table */
+    font-size: 14px;
+    padding: 20px; /* Add padding to all sides of the table */
+}
+
+.dash-table thead th {
+    padding: 20px; /* Add padding to the table heading */
+}
+
+.dash-graph .xtick, .dash-graph .ytick {
+    padding: 20px; /* Add padding to the chart labels */
+}
+
+.dash-interval {
+    display: none;
+}
