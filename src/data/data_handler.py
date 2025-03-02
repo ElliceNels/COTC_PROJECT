@@ -49,8 +49,12 @@ class DataHandler:
     def send_metrics_to_web_app(data: list):
         url = 'https://ellicenelson.pythonanywhere.com/store_metrics'
         headers = {'Content-Type': 'application/json'}
-        response = requests.post(url, data=json.dumps(data), headers=headers)
-        return response.status_code
+        try:
+            response = requests.post(url, data=json.dumps(data), headers=headers)
+            return response.status_code
+        except requests.exceptions.ConnectionError as e:
+            logger.error(f"Failed to send metrics to web app: {e}")
+            return None
     
 DataHandler.connect_local_metrics()
 DataHandler.connect_tp_metrics()
