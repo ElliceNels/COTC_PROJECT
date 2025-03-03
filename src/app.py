@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 def create_app():
     """Create and configure the Flask application."""
 
-    app: Flask = Flask(config.app_name, template_folder="templates")
+    app: Flask = Flask(config.app_name)
     logger.debug('App "%s"created in %s', app.name, __name__)
 
     engine = create_engine(config.database.db_engine)
