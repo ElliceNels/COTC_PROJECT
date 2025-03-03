@@ -108,7 +108,7 @@ class TemperatureInItaly(Metric):
             return cache
 
         # API to weather data
-        all_weather_data = requests.get(config.third_party_api.url).json()
+        all_weather_data = requests.get(config.third_party_api.url, params=config.third_party_api.params).json()
         value = all_weather_data["main"]["temp"]
 
         data = MetricReadingDTO(
@@ -132,7 +132,7 @@ class TemperatureFeelInItaly(Metric):
             return cache
 
         # API to weather data
-        all_weather_data = requests.get(config.third_party_api.url).json()
+        all_weather_data = requests.get(config.third_party_api.url, params=config.third_party_api.params).json()
         value = all_weather_data["main"]["feels_like"]
 
         data = MetricReadingDTO(

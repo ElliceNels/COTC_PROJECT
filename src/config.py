@@ -28,6 +28,7 @@ class ThirdPartyAPIConfig(BaseModel):
     """Third Party API configuration class."""
     name: str
     url: str
+    params: dict[str, str]
     cache_timeout_m: float
 
 class Config(BaseModel):
