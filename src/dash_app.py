@@ -47,7 +47,7 @@ def create_dash_app(flask_app: Flask):
             id='data-table',
             columns=[
                 {'name': 'Device', 'id': 'device'},
-                {'name': 'Timestamp', 'id': 'timestamp'},
+                {'name': 'Timestamp', 'id': 'timestamp', 'type': 'datetime'},
                 {'name': 'Value', 'id': 'value'},
                 {'name': 'Unit', 'id': 'unit'}
             ],
@@ -118,7 +118,7 @@ def create_dash_app(flask_app: Flask):
         historical_figure = {
             'data': [
                 go.Scatter(
-                    x=[metric.timestamp for metric in historical_metrics],
+                    x=[metric.timestamp.strftime('%Y-%m-%d %H:%M:%S') for metric in historical_metrics],
                     y=[metric.value for metric in historical_metrics],
                     mode='lines+markers'
                 )
@@ -133,7 +133,7 @@ def create_dash_app(flask_app: Flask):
         table_data = [
             {
                 'device': metric.device.name,
-                'timestamp': metric.timestamp,
+                'timestamp': metric.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
                 'value': metric.value,
                 'unit': metric.unit.name if metric.unit else ''
             } for metric in all_metrics

@@ -5,6 +5,7 @@ from flask import Flask, request, jsonify, redirect
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from config import config
+from datetime import datetime
 
 from data.dto import DeviceDTO, MetricTypeDTO, UnitDTO
 from data.models import Base, MetricReading, Device, MetricType, Unit
@@ -77,7 +78,7 @@ def create_app():
                 metric_reading = MetricReading(
                     device_id=device.id,
                     metric_type_id=metric_type.id,
-                    timestamp=data['timestamp'],
+                    timestamp=datetime.strptime(data['timestamp'], '%Y-%m-%d %H:%M:%S'),
                     value=data['value'],
                     unit_id=unit.id if unit else None
                 )

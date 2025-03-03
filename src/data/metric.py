@@ -35,19 +35,17 @@ class Metric(ABC):
         return self.__class__.__name__
 
     def get_timestamp(self):
-        """Return the current time."""
-        return datetime.datetime.now().time().strftime('%H:%M:%S.%f')[:-5]
+        """Return the current datetime."""
+        return datetime.datetime.now()
 
     @abstractmethod
     def measure(self, device: DeviceDTO) -> MetricReadingDTO:
         """Measure the metric."""
         if self.cache[self.DATA_INDEX] and self.cache[self.TIME_UPDATED_INDEX]:
             # Get time difference
-            cache_time_str = self.cache[self.TIME_UPDATED_INDEX]
-            cache_time = datetime.datetime.strptime(cache_time_str, '%H:%M:%S.%f').time()
-            current_time = datetime.datetime.now().time()
-            cache_age = datetime.datetime.combine(datetime.date.today(), current_time) - datetime.datetime.combine(datetime.date.today(), cache_time)
-            
+            cache_time = self.cache[self.TIME_UPDATED_INDEX]
+            current_time = datetime.datetime.now()
+            cache_age = current_time - cache_time
             if cache_age <= datetime.timedelta(minutes=config.third_party_api.cache_timeout_m):
                 logger.debug('Returning cached data')
                 return self.cache[self.DATA_INDEX]

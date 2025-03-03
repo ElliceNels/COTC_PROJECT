@@ -1,12 +1,15 @@
 from dataclasses import dataclass, asdict
 from typing import Optional
 import uuid
+from datetime import datetime
 
 def serialize_with_uuid(obj):
-    """Custom serialization function to handle UUID objects."""
+    """Custom serialization function to handle UUID and datetime objects."""
     def convert(value):
         if isinstance(value, uuid.UUID):
             return str(value)
+        if isinstance(value, datetime):
+            return value.strftime('%Y-%m-%d %H:%M:%S')
         if isinstance(value, list):
             return [convert(v) for v in value]
         if isinstance(value, dict):
@@ -47,7 +50,7 @@ class MetricReadingDTO:
     id: int
     device: DeviceDTO
     metric_type: MetricTypeDTO
-    timestamp: str
+    timestamp: datetime
     value: float
     unit: Optional[UnitDTO] = None
 

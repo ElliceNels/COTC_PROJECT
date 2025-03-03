@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -27,7 +27,7 @@ class MetricReading(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     device_id = Column(Integer, ForeignKey('devices.id'), nullable=False)
     metric_type_id = Column(Integer, ForeignKey('metric_types.id'), nullable=False)
-    timestamp = Column(String, nullable=False)
+    timestamp = Column(DateTime, nullable=False)
     value = Column(Float, nullable=False)
     unit_id = Column(Integer, ForeignKey('units.id'), nullable=True)
 
