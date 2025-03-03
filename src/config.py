@@ -12,6 +12,7 @@ class ServerConfig(BaseModel):
     host: str
     port: int
     debug: bool
+    url: str
 
 class DatabaseConfig(BaseModel):
     """Database configuration class."""

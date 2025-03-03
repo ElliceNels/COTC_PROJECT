@@ -70,7 +70,7 @@ class MetricsCollector:
     # PJ: Uploader Queue
     @staticmethod
     def send_metrics_to_web_app(data: list):
-        url = 'https://ellicenelson.pythonanywhere.com/store_metrics'
+        url = config.server.url + '/store_metrics'
         headers = {'Content-Type': 'application/json'}
         try:
             response = requests.post(url, data=json.dumps(data), headers=headers)

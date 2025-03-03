@@ -3,7 +3,8 @@
     "server": {
       "host": "localhost",
       "port": 5000,
-      "debug": false
+      "debug": false,
+      "url": "https://ellicenelson.pythonanywhere.com"
     },
 
     "logging": {
