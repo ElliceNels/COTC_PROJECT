@@ -84,7 +84,7 @@ def create_dash_app(flask_app: Flask):
         average_value = query.with_entities(func.avg(MetricReading.value)).scalar() if latest_metric else 50
 
         # Fetch the last 20 metric readings for the historical plot
-        historical_metrics = query.order_by(MetricReading.timestamp.desc()).limit(20).all()
+        historical_metrics = query.order_by(MetricReading.timestamp.asc()).limit(20).all()
 
         # Fetch all metric readings for the table
         all_metrics = query.order_by(MetricReading.timestamp.desc()).all()
@@ -125,7 +125,7 @@ def create_dash_app(flask_app: Flask):
             ],
             'layout': go.Layout(
                 title='Historical Data (Last 30 Entries)',
-                xaxis={'title': 'Timestamp', 'autorange': 'reversed', 'tickformat': '%H:%M:%S'},
+                xaxis={'title': 'Timestamp', 'tickformat': '%H:%M:%S'},
                 yaxis={'title': 'Value'}
             )
         }
