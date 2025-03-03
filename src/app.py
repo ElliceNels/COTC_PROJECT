@@ -53,11 +53,15 @@ def create_app():
                     device = Device(name=device_dto.name, id=device_dto.id)
                     session.add(device)
                 
+                session.flush()
+
                 # Check if MetricType exists or create it
                 metric_type = session.query(MetricType).filter_by(name=metric_type_dto.name).first()
                 if not metric_type:
                     metric_type = MetricType(name=metric_type_dto.name)
                     session.add(metric_type)
+                
+                session.flush()
                 
                 # Check if Unit exists or create it
                 if unit_dto:
