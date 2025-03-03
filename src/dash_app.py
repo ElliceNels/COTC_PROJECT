@@ -83,8 +83,8 @@ def create_dash_app(flask_app: Flask):
         # Calculate the average value for the selected metric type
         average_value = query.with_entities(func.avg(MetricReading.value)).scalar() if latest_metric else 50
 
-        # Fetch the last 30 metric readings for the historical plot
-        historical_metrics = query.order_by(MetricReading.timestamp.desc()).limit(30).all()
+        # Fetch the last 20 metric readings for the historical plot
+        historical_metrics = query.order_by(MetricReading.timestamp.desc()).limit(20).all()
 
         # Fetch all metric readings for the table
         all_metrics = query.order_by(MetricReading.timestamp.desc()).all()
@@ -139,6 +139,7 @@ def create_dash_app(flask_app: Flask):
             } for metric in all_metrics
         ]
 
+        # Updates the gauge, historical plot, and table
         return gauge_figure, historical_figure, table_data
 
     return dash_app
