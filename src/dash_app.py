@@ -118,14 +118,14 @@ def create_dash_app(flask_app: Flask):
         historical_figure = {
             'data': [
                 go.Scatter(
-                    x=[metric.timestamp.strftime('%Y-%m-%d %H:%M:%S') for metric in historical_metrics],
+                    x=[metric.timestamp.isoformat() if metric.timestamp else '' for metric in historical_metrics],
                     y=[metric.value for metric in historical_metrics],
                     mode='lines+markers'
                 )
             ],
             'layout': go.Layout(
                 title='Historical Data (Last 30 Entries)',
-                xaxis={'title': 'Timestamp', 'tickformat': '%H:%M:%S'},
+                xaxis={'title': 'Timestamp', 'tickformat': '%Y-%m-%d %H:%M:%S'},
                 yaxis={'title': 'Value'}
             )
         }
@@ -133,7 +133,7 @@ def create_dash_app(flask_app: Flask):
         table_data = [
             {
                 'device': metric.device.name,
-                'timestamp': metric.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                'timestamp': metric.timestamp.isoformat() if metric.timestamp else '',
                 'value': metric.value,
                 'unit': metric.unit.name if metric.unit else ''
             } for metric in all_metrics
