@@ -53,16 +53,16 @@ class Metric(ABC):
                 logger.debug('Cache expired')
                 return None
 
-class CPUUtilization(Metric):
-    """Class to measure the CPU utilisation."""
+class RAMUsage(Metric):
+    """Class to measure the RAM usage."""
     UNIT_DTO: UnitDTO = UnitDTO(id=-1, name='Percent')
-    
-    def measure(self, device: DeviceDTO):
-        """Measure the CPU Utilisation."""
+
+    def measure(self, device: DeviceDTO) -> MetricReadingDTO:
+        """Measure the RAM usage."""
         if (cache := super().measure(device)):
             return cache
-        
-        value: float = psutil.cpu_percent(interval=1)
+
+        value: float = psutil.virtual_memory().percent
         data = MetricReadingDTO(
             id=-1,
             device=device,
@@ -85,6 +85,28 @@ class CPUTimes(Metric):
             return cache
 
         value: float = psutil.cpu_times().user
+        data = MetricReadingDTO(
+            id=-1,
+            device=device,
+            metric_type=self.metric_type,
+            timestamp=self.get_timestamp(),
+            value=value,
+            unit=self.UNIT_DTO
+        )
+        logger.debug(data)
+        self.cache = (data, self.get_timestamp())
+        return data
+
+class NetworkSend(Metric):
+    """Class to measure the network send bytes."""
+    UNIT_DTO: UnitDTO = UnitDTO(id=-1, name='Bytes')
+
+    def measure(self, device: DeviceDTO) -> MetricReadingDTO:
+        """Measure the network send bytes."""
+        if (cache := super().measure(device)):
+            return cache
+
+        value: float = psutil.net_io_counters().bytes_sent
         data = MetricReadingDTO(
             id=-1,
             device=device,

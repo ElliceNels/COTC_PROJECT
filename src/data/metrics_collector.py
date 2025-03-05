@@ -8,7 +8,7 @@ from config import config
 
 from data.dto import DeviceDTO
 from .metrics import Metrics
-from .metric import CPUUtilization, CPUTimes, TemperatureInItaly, TemperatureFeelInItaly
+from .metric import CPUTimes, TemperatureInItaly, TemperatureFeelInItaly, RAMUsage, NetworkSend
 
 logger = logging.getLogger(__name__)
 class MetricsCollector:
@@ -34,8 +34,9 @@ class MetricsCollector:
 
     @staticmethod
     def connect_local_metrics():
-        MetricsCollector.local_metrics.add_metric(CPUUtilization())
         MetricsCollector.local_metrics.add_metric(CPUTimes())
+        MetricsCollector.local_metrics.add_metric(RAMUsage())
+        MetricsCollector.local_metrics.add_metric(NetworkSend())
 
     @staticmethod
     def connect_tp_metrics():
