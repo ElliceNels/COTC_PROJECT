@@ -9,8 +9,10 @@ from config import config
 from data.dto import DeviceDTO
 from .metrics import Metrics
 from .metric import CPUTimes, TemperatureInItaly, TemperatureFeelInItaly, RAMUsage, NetworkSend
+from sdk.metrics_api import MetricsAPI
 
 logger = logging.getLogger(__name__)
+
 class MetricsCollector:
     local_metrics: Metrics = Metrics(
         device_dto=DeviceDTO(
@@ -49,7 +51,7 @@ class MetricsCollector:
         data_list = MetricsCollector.local_metrics.measure_metrics()
         serialise_data_list = [data.serialize() for data in data_list]
         if save_flag:
-            MetricsCollector.send_metrics_to_web_app(serialise_data_list)
+            MetricsAPI.send_metrics(serialise_data_list)
         return serialise_data_list
 
     # PJ: Third Party Collector
@@ -58,7 +60,7 @@ class MetricsCollector:
         data_list = MetricsCollector.third_party_metrics.measure_metrics()
         serialise_data_list = [data.serialize() for data in data_list]
         if save_flag:
-            MetricsCollector.send_metrics_to_web_app(serialise_data_list)
+            MetricsAPI.send_metrics(serialise_data_list)
         return serialise_data_list
 
     @staticmethod
@@ -68,18 +70,6 @@ class MetricsCollector:
             MetricsCollector.collect_tp_metrics(True)
             sleep(5)
 
-    # PJ: Uploader Queue
-    @staticmethod
-    def send_metrics_to_web_app(data: list):
-        url = config.server.url + '/store_metrics'
-        headers = {'Content-Type': 'application/json'}
-        try:
-            response = requests.post(url, data=json.dumps(data), headers=headers)
-            return response.status_code
-        except requests.exceptions.ConnectionError as e:
-            logger.error(f"Failed to send metrics to web app: {e}")
-            return None
-    
 MetricsCollector.connect_local_metrics()
 MetricsCollector.connect_tp_metrics()
 
