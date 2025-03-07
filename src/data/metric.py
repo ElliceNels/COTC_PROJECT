@@ -20,7 +20,7 @@ class Metric(ABC):
     def __init__(self):
         super().__init__()
         self.cache: tuple = (None, None)
-        self.metric_type = MetricTypeDTO(id=-1, name=self.get_metric_type())
+        self.metric_type = None
 
     def __eq__(self, other_metric_type: str):
         """Check if the metric type is equal to another metric type."""
@@ -55,7 +55,11 @@ class Metric(ABC):
 
 class RAMUsage(Metric):
     """Class to measure the RAM usage."""
-    UNIT_DTO: UnitDTO = UnitDTO(id=-1, name='Percent')
+    UNIT_DTO: UnitDTO = UnitDTO(id=-1, name='Percent', symbol='%')
+
+    def __init__(self):
+        super().__init__()
+        self.metric_type = MetricTypeDTO(id=-1, name=self.get_metric_type(), min_value=0, max_value=100)
 
     def measure(self, device: DeviceDTO) -> MetricReadingDTO:
         """Measure the RAM usage."""
@@ -77,7 +81,11 @@ class RAMUsage(Metric):
 
 class CPUTimes(Metric):
     """Class to measure cpu times in user mode."""
-    UNIT_DTO: UnitDTO = UnitDTO(id=-1, name='Seconds')
+    UNIT_DTO: UnitDTO = UnitDTO(id=-1, name='Seconds', symbol='s')
+
+    def __init__(self):
+        super().__init__()
+        self.metric_type = MetricTypeDTO(id=-1, name=self.get_metric_type(), min_value=0, max_value=90000)
 
     def measure(self, device: DeviceDTO) -> MetricReadingDTO:
         """Measure the CPU user times."""
@@ -99,7 +107,11 @@ class CPUTimes(Metric):
 
 class NetworkSend(Metric):
     """Class to measure the network send bytes."""
-    UNIT_DTO: UnitDTO = UnitDTO(id=-1, name='Bytes')
+    UNIT_DTO: UnitDTO = UnitDTO(id=-1, name='Bytes', symbol='B')
+
+    def __init__(self):
+        super().__init__()
+        self.metric_type = MetricTypeDTO(id=-1, name=self.get_metric_type(), min_value=0, max_value=1000000000)
 
     def measure(self, device: DeviceDTO) -> MetricReadingDTO:
         """Measure the network send bytes."""
@@ -120,7 +132,12 @@ class NetworkSend(Metric):
         return data
 
 class TemperatureInItaly(Metric):
-    UNIT_DTO: UnitDTO = UnitDTO(id=-1, name='Celsius')
+    UNIT_DTO: UnitDTO = UnitDTO(id=-1, name='Celsius', symbol='°C')
+
+    def __init__(self):
+        super().__init__()
+        self.metric_type = MetricTypeDTO(id=-1, name=self.get_metric_type(), min_value=-50, max_value=50)
+
 
     def measure(self, device: DeviceDTO) -> MetricReadingDTO:
         """Measure the temperature in Italy from a 3rd Party API."""
@@ -144,7 +161,11 @@ class TemperatureInItaly(Metric):
         return data
 
 class TemperatureFeelInItaly(Metric):
-    UNIT_DTO: UnitDTO = UnitDTO(id=-1, name='Celsius')
+    UNIT_DTO: UnitDTO = UnitDTO(id=-1, name='Celsius', symbol='°C')
+
+    def __init__(self):
+        super().__init__()
+        self.metric_type = MetricTypeDTO(id=-1, name=self.get_metric_type(), min_value=-50, max_value=50)
 
     def measure(self, device: DeviceDTO) -> MetricReadingDTO:
         """Measure the temperature feel in Italy from a 3rd Party API."""

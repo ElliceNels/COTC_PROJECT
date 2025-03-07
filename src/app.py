@@ -108,14 +108,18 @@ def create_app():
         session.close()
 
         if latest_metric:
-            max_value = average_value * 2
+            min_value = latest_metric.metric_type.min_value if latest_metric.metric_type.min_value is not None else 0
+            max_value = latest_metric.metric_type.max_value if latest_metric.metric_type.max_value is not None else average_value * 2
+            unit_name = latest_metric.unit.name if latest_metric.unit else ''
+            unit_symbol = latest_metric.unit.symbol if latest_metric.unit else ''
             gauge_figure = {
                 'data': [
                     go.Indicator(
                         mode="gauge+number",
                         value=latest_metric.value,
-                        title={'text': latest_metric.metric_type.name},
-                        gauge={'axis': {'range': [None, max_value]}}
+                        title={'text': f"{latest_metric.metric_type.name} ({unit_name})"},
+                        gauge={'axis': {'range': [min_value, max_value]}},
+                        number={'suffix': f" {unit_symbol}"}
                     )
                 ]
             }
@@ -177,8 +181,8 @@ def create_app():
             for data in metrics_data:
                 # Map incoming data into DTOs
                 device_dto = DeviceDTO(id=data['device']['id'], name=data['device']['name'])
-                metric_type_dto = MetricTypeDTO(id=data['metric_type']['id'], name=data['metric_type']['name'])
-                unit_dto = UnitDTO(id=data['unit']['id'], name=data['unit']['name']) if data.get('unit') else None
+                metric_type_dto = MetricTypeDTO(id=data['metric_type']['id'], name=data['metric_type']['name'], min_value=data['metric_type'].get('min_value'), max_value=data['metric_type'].get('max_value'))
+                unit_dto = UnitDTO(id=data['unit']['id'], name=data['unit']['name'], symbol=data['unit'].get('symbol')) if data.get('unit') else None
 
                 # Check if Device exists or create it
                 device = session.query(Device).filter_by(id=device_dto.id).first() or \
@@ -193,7 +197,7 @@ def create_app():
                 # Check if MetricType exists or create it
                 metric_type = session.query(MetricType).filter_by(name=metric_type_dto.name).first()
                 if not metric_type:
-                    metric_type = MetricType(name=metric_type_dto.name)
+                    metric_type = MetricType(name=metric_type_dto.name, min_value=metric_type_dto.min_value, max_value=metric_type_dto.max_value)
                     session.add(metric_type)
                 
                 session.flush()
@@ -203,7 +207,7 @@ def create_app():
                 if unit_dto:
                     unit = session.query(Unit).filter_by(name=unit_dto.name).first()
                     if not unit:
-                        unit = Unit(name=unit_dto.name)
+                        unit = Unit(name=unit_dto.name, symbol=unit_dto.symbol)
                         session.add(unit)
                 
                 session.flush()

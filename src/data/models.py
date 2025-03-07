@@ -14,12 +14,15 @@ class MetricType(Base):
     __tablename__ = 'metric_types'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False, unique=True)
+    min_value = Column(Float, nullable=True)
+    max_value = Column(Float, nullable=True)
     metric_readings = relationship('MetricReading', back_populates='metric_type')
 
 class Unit(Base):
     __tablename__ = 'units'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False, unique=True)
+    symbol = Column(String, nullable=False, unique=False)
     metric_readings = relationship('MetricReading', back_populates='unit')
 
 class MetricReading(Base):

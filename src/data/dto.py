@@ -31,6 +31,8 @@ class DeviceDTO:
 class MetricTypeDTO:
     id: int
     name: str
+    min_value: Optional[float] = None
+    max_value: Optional[float] = None
 
     def serialize(self):
         return serialize_with_uuid(self)
@@ -40,6 +42,7 @@ class MetricTypeDTO:
 class UnitDTO:
     id: int
     name: str
+    symbol: Optional[str] = None
 
     def serialize(self):
         return serialize_with_uuid(self)
