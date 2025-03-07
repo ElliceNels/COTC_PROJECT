@@ -56,6 +56,7 @@ class MetricReadingDTO:
     timestamp: datetime
     value: float
     unit: Optional[UnitDTO] = None
+    utc_offset: Optional[float] = 0.0
 
     def serialize(self):
         return serialize_with_uuid(self)

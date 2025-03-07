@@ -38,6 +38,11 @@ class Metric(ABC):
         """Return the current datetime."""
         return datetime.datetime.now()
 
+    def get_utc_offset(self, timestamp):
+        """Calculate the UTC offset for the given timestamp."""
+        offset = timestamp.utcoffset() if timestamp.utcoffset() else datetime.timezone.utc.utcoffset(timestamp)
+        return offset.total_seconds() / 3600
+
     @abstractmethod
     def measure(self, device: DeviceDTO) -> MetricReadingDTO:
         """Measure the metric."""
@@ -67,13 +72,15 @@ class RAMUsage(Metric):
             return cache
 
         value: float = psutil.virtual_memory().percent
+        timestamp = self.get_timestamp()
         data = MetricReadingDTO(
             id=-1,
             device=device,
             metric_type=self.metric_type,
-            timestamp=self.get_timestamp(),
+            timestamp=timestamp,
             value=value,
-            unit=self.UNIT_DTO
+            unit=self.UNIT_DTO,
+            utc_offset=self.get_utc_offset(timestamp)
         )
         logger.debug(data)
         self.cache = (data, self.get_timestamp())
@@ -93,13 +100,15 @@ class CPUTimes(Metric):
             return cache
 
         value: float = psutil.cpu_times().user
+        timestamp = self.get_timestamp()
         data = MetricReadingDTO(
             id=-1,
             device=device,
             metric_type=self.metric_type,
-            timestamp=self.get_timestamp(),
+            timestamp=timestamp,
             value=value,
-            unit=self.UNIT_DTO
+            unit=self.UNIT_DTO,
+            utc_offset=self.get_utc_offset(timestamp)
         )
         logger.debug(data)
         self.cache = (data, self.get_timestamp())
@@ -119,13 +128,15 @@ class NetworkSend(Metric):
             return cache
 
         value: float = psutil.net_io_counters().bytes_sent
+        timestamp = self.get_timestamp()
         data = MetricReadingDTO(
             id=-1,
             device=device,
             metric_type=self.metric_type,
-            timestamp=self.get_timestamp(),
+            timestamp=timestamp,
             value=value,
-            unit=self.UNIT_DTO
+            unit=self.UNIT_DTO,
+            utc_offset=self.get_utc_offset(timestamp)
         )
         logger.debug(data)
         self.cache = (data, self.get_timestamp())
@@ -148,13 +159,15 @@ class TemperatureInItaly(Metric):
         all_weather_data = requests.get(config.third_party_api.url, params=config.third_party_api.params).json()
         value = all_weather_data["main"]["temp"]
 
+        timestamp = self.get_timestamp()
         data = MetricReadingDTO(
             id=-1,
             device=device,
             metric_type=self.metric_type,
-            timestamp=self.get_timestamp(),
+            timestamp=timestamp,
             value=value,
-            unit=self.UNIT_DTO
+            unit=self.UNIT_DTO,
+            utc_offset=self.get_utc_offset(timestamp)
         )
         logger.debug(data)
         self.cache = (data, self.get_timestamp())
@@ -176,13 +189,15 @@ class TemperatureFeelInItaly(Metric):
         all_weather_data = requests.get(config.third_party_api.url, params=config.third_party_api.params).json()
         value = all_weather_data["main"]["feels_like"]
 
+        timestamp = self.get_timestamp()
         data = MetricReadingDTO(
             id=-1,
             device=device,
             metric_type=self.metric_type,
-            timestamp=self.get_timestamp(),
+            timestamp=timestamp,
             value=value,
-            unit=self.UNIT_DTO
+            unit=self.UNIT_DTO,
+            utc_offset=self.get_utc_offset(timestamp)
         )
         logger.debug(data)
         self.cache = (data, self.get_timestamp())

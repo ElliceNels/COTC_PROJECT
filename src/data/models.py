@@ -33,7 +33,7 @@ class MetricReading(Base):
     timestamp = Column(DateTime, nullable=False)
     value = Column(Float, nullable=False)
     unit_id = Column(Integer, ForeignKey('units.id'), nullable=True)
-
+    utc_offset = Column(Float, nullable=False, default=0.0)
     device = relationship('Device', back_populates='metric_readings')
     metric_type = relationship('MetricType', back_populates='metric_readings')
     unit = relationship('Unit', back_populates='metric_readings')
