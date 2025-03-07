@@ -44,7 +44,7 @@ class Metric(ABC):
         return offset.total_seconds() / 3600
 
     @abstractmethod
-    def measure(self, device: DeviceDTO) -> MetricReadingDTO:
+    def measure(self, device: DeviceDTO) -> MetricReadingDTO | None:
         """Measure the metric."""
         if self.cache[self.DATA_INDEX] and self.cache[self.TIME_UPDATED_INDEX]:
             # Get time difference
