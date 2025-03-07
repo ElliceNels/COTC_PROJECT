@@ -75,6 +75,8 @@ def create_app():
         Output('gauge', 'figure'),
         Output('historical-plot', 'figure'),
         Output('data-table', 'data'),
+        Output('metric-type-dropdown', 'options'),  # Add output for metric type dropdown options
+        Output('metric-type-dropdown', 'value'),  # Add output for metric type dropdown value
         Input('interval-component', 'n_intervals'),
         Input('device-dropdown', 'value'),
         Input('metric-type-dropdown', 'value')
@@ -86,6 +88,10 @@ def create_app():
 
         if selected_device:
             query = query.filter(MetricReading.device_id == selected_device)
+            # Fetch metric types for the selected device
+            metric_types_for_device = session.query(MetricReading.metric_type_id, MetricType.name).join(MetricType).filter(MetricReading.device_id == selected_device).distinct().all()
+            if not selected_metric_type and metric_types_for_device:
+                selected_metric_type = metric_types_for_device[0].metric_type_id
         if selected_metric_type:
             query = query.filter(MetricReading.metric_type_id == selected_metric_type)
         else:
@@ -104,6 +110,9 @@ def create_app():
 
         # Fetch all metric readings for the table
         all_metrics = query.order_by(MetricReading.timestamp.desc()).all()
+
+        # Fetch metric types for the selected device
+        metric_types_for_device = session.query(MetricReading.metric_type_id, MetricType.name).join(MetricType).filter(MetricReading.device_id == selected_device).distinct().all()
 
         session.close()
 
@@ -157,10 +166,12 @@ def create_app():
                 'value': metric.value,
                 'unit': metric.unit.name if metric.unit else ''
             } for metric in all_metrics
-        ]
+        ] 
 
-        # Updates the gauge, historical plot, and table
-        return gauge_figure, historical_figure, table_data
+        metric_type_options = [{'label': metric_type.name, 'value': metric_type.metric_type_id} for metric_type in metric_types_for_device]
+
+        # Updates the gauge, historical plot, table, and metric type dropdown options
+        return gauge_figure, historical_figure, table_data, metric_type_options, selected_metric_type
 
     @app.route('/')
     def landing_page():
