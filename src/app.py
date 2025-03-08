@@ -77,6 +77,7 @@ def create_app():
         Output('data-table', 'data'),
         Output('metric-type-dropdown', 'options'),  # Add output for metric type dropdown options
         Output('metric-type-dropdown', 'value'),  # Add output for metric type dropdown value
+        Output('device-dropdown', 'options'),  # Add output for device dropdown options
         Input('interval-component', 'n_intervals'),
         Input('device-dropdown', 'value'),
         Input('metric-type-dropdown', 'value')
@@ -85,6 +86,9 @@ def create_app():
         session = Session()
 
         query = session.query(MetricReading).options(joinedload(MetricReading.metric_type), joinedload(MetricReading.device), joinedload(MetricReading.unit))
+
+        # Refresh device fields
+        devices = session.query(MetricReading.device_id, Device.name).join(Device).distinct().all()
 
         if selected_device:
             query = query.filter(MetricReading.device_id == selected_device)
@@ -170,8 +174,10 @@ def create_app():
 
         metric_type_options = [{'label': metric_type.name, 'value': metric_type.metric_type_id} for metric_type in metric_types_for_device]
 
-        # Updates the gauge, historical plot, table, and metric type dropdown options
-        return gauge_figure, historical_figure, table_data, metric_type_options, selected_metric_type
+        device_options = [{'label': device.name, 'value': device.device_id} for device in devices]
+
+        # Updates the gauge, historical plot, table, metric type dropdown options, and device dropdown options
+        return gauge_figure, historical_figure, table_data, metric_type_options, selected_metric_type, device_options
 
     @app.route('/')
     def landing_page():
