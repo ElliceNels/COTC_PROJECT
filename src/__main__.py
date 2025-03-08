@@ -28,7 +28,8 @@ def main():
             mc = MetricsCollector()
             mc.start_scheduler()
             # Keep the main thread alive efficiently
-            stop_event.wait()
+            while not stop_event.is_set():
+                stop_event.wait(1)
         except KeyboardInterrupt:
             logger.info('Shutting down the data collector')
             mc.stop_scheduler()
