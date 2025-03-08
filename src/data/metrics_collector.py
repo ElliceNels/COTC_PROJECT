@@ -3,7 +3,9 @@ import logging
 import socket
 from time import sleep
 import uuid
+from apscheduler.schedulers.background import BackgroundScheduler
 import requests
+from block_timer import BlockTimer
 from config import config
 
 from data.dto import DeviceDTO
@@ -34,6 +36,13 @@ class MetricsCollector:
         )
     )
 
+    def __init__(self):
+        self.scheduler = BackgroundScheduler()
+        MetricsCollector.connect_local_metrics()
+        MetricsCollector.connect_tp_metrics()
+        self.scheduler.add_job(MetricsCollector.collect_local_metrics, 'interval', seconds=10, args=[True], max_instances=1)
+        self.scheduler.add_job(MetricsCollector.collect_tp_metrics, 'interval', seconds=10, args=[True], max_instances=1)
+
     @staticmethod
     def connect_local_metrics():
         MetricsCollector.local_metrics.add_metric(CPUTimes())
@@ -48,28 +57,27 @@ class MetricsCollector:
     # PJ: PC Collector
     @staticmethod
     def collect_local_metrics(save_flag: bool = False):
-        data_list = MetricsCollector.local_metrics.measure_metrics()
-        serialise_data_list = [data.serialize() for data in data_list]
-        if save_flag:
-            MetricsAPI.send_metrics(serialise_data_list)
-        return serialise_data_list
+        with BlockTimer():
+            data_list = MetricsCollector.local_metrics.measure_metrics()
+            serialise_data_list = [data.serialize() for data in data_list]
+            if save_flag:
+                MetricsAPI.send_metrics(serialise_data_list)
+            return serialise_data_list
 
     # PJ: Third Party Collector
     @staticmethod
     def collect_tp_metrics(save_flag: bool = False):
-        data_list = MetricsCollector.third_party_metrics.measure_metrics()
-        serialise_data_list = [data.serialize() for data in data_list]
-        if save_flag:
-            MetricsAPI.send_metrics(serialise_data_list)
-        return serialise_data_list
+        with BlockTimer():
+            data_list = MetricsCollector.third_party_metrics.measure_metrics()
+            serialise_data_list = [data.serialize() for data in data_list]
+            if save_flag:
+                MetricsAPI.send_metrics(serialise_data_list)
+            return serialise_data_list
 
-    @staticmethod
-    def collect_data():
-        while True:
-            MetricsCollector.collect_local_metrics(True)
-            MetricsCollector.collect_tp_metrics(True)
-            sleep(5)
+    def start_scheduler(self):
+        self.scheduler.start()
+        logger.info('Scheduler started')
 
-MetricsCollector.connect_local_metrics()
-MetricsCollector.connect_tp_metrics()
-
+    def stop_scheduler(self):
+        self.scheduler.shutdown()
+        logger.info('Scheduler stopped')

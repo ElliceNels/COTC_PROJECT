@@ -8,6 +8,7 @@ import threading
 setup_logger()
 
 logger = logging.getLogger(__name__)
+stop_event = threading.Event()
 
 def main():
     """Entry function."""
@@ -19,10 +20,19 @@ def main():
 
     if args.a:
         logger.info('Starting the application')
-        launch_app()
+        app_thread = threading.Thread(target=launch_app)
+        app_thread.start()
     if args.c:
-        logger.info('Starting the data collector')
-        MetricsCollector.collect_data()
+        try:
+            logger.info('Starting the data collector')
+            mc = MetricsCollector()
+            mc.start_scheduler()
+            # Keep the main thread alive efficiently
+            stop_event.wait()
+        except KeyboardInterrupt:
+            logger.info('Shutting down the data collector')
+            mc.stop_scheduler()
+            stop_event.set()
     else:
         logger.info('DEFAULT: Starting the application')
         launch_app()
