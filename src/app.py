@@ -84,6 +84,9 @@ def create_app():
 
         query = session.query(MetricReading).options(joinedload(MetricReading.metric_type), joinedload(MetricReading.device), joinedload(MetricReading.unit))
 
+        # Refresh device fields
+        devices = session.query(MetricReading.device_id, Device.name).join(Device).distinct().all()
+
         if selected_device:
             query = query.filter(MetricReading.device_id == selected_device)
         if selected_metric_type:
