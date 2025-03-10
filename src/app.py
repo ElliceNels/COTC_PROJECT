@@ -11,9 +11,11 @@ from data.dto import DeviceDTO, MetricTypeDTO, UnitDTO
 from data.models import Base, MetricReading, Device, MetricType, Unit
 from dash import dcc, html, dash_table
 import plotly.graph_objs as go
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
+from flask_caching import Cache
 from sqlalchemy.sql import func
 import dash
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +24,7 @@ def create_app():
 
     app: Flask = Flask(config.app_name)
     logger.debug('App "%s" created in %s', app.name, __name__)
+    cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
     engine = create_engine(config.database.db_engine)
     Base.metadata.create_all(engine)
@@ -68,7 +71,10 @@ def create_app():
             ],
             page_size=10,
             style_table={'width': '80%', 'margin': 'auto', 'font-size': '14px'}
-        )
+        ),
+        dcc.Input(id='message-input', type='text', placeholder='Enter a message'),
+        html.Button('Send Message', id='send-message-button'),
+        html.Div(id='message-output')
     ])
 
     @dash_app.callback(
@@ -79,6 +85,7 @@ def create_app():
         Input('device-dropdown', 'value'),
         Input('metric-type-dropdown', 'value')
     )
+    @cache.memoize(timeout=5)
     def update_metrics(n, selected_device, selected_metric_type):
         session = Session()
 
@@ -165,6 +172,20 @@ def create_app():
         # Updates the gauge, historical plot, and table
         return gauge_figure, historical_figure, table_data
 
+    @dash_app.callback(
+        Output('message-output', 'children'),
+        Input('send-message-button', 'n_clicks'),
+        State('message-input', 'value')
+    )
+    def send_message_to_server(n_clicks, message):
+        if n_clicks:
+            response = requests.post(f"{config.server.url}/send_message", json={'message': message})
+            if response.status_code == 200:
+                return 'Message sent successfully!'
+            else:
+                return 'Failed to send message.'
+        return ''
+
     @app.route('/')
     def landing_page():
         """Landing page route."""
@@ -236,6 +257,19 @@ def create_app():
             return jsonify({'error': 'Failed to store metrics'}), 500
         finally:
             session.close()
+
+    @app.route('/send_message', methods=['POST'])
+    def send_message():
+        """Send a message to all WebSocket clients."""
+        data = request.json
+        message = data.get('message')
+        if not message:
+            return jsonify({'error': 'No message provided'}), 400
+
+        # Send message
+
+        logger.info("Sent message: %s", message)
+        return jsonify({'status': 'Message sent successfully!'}), 200
 
     return app
 

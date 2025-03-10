@@ -22,7 +22,7 @@ def main():
         logger.info('Starting the application')
         app_thread = threading.Thread(target=launch_app)
         app_thread.start()
-    if args.c:
+    elif args.c:
         try:
             logger.info('Starting the data collector')
             mc = MetricsCollector()
