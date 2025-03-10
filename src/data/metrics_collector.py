@@ -61,7 +61,9 @@ class MetricsCollector:
             data_list = MetricsCollector.local_metrics.measure_metrics()
             serialise_data_list = [data.serialize() for data in data_list]
             if save_flag:
+                logger.debug('Sending LOCAL data to API')
                 MetricsAPI.send_metrics(serialise_data_list)
+                logger.debug('Data sent to LOCAL')
             return serialise_data_list
 
     # PJ: Third Party Collector
@@ -71,7 +73,9 @@ class MetricsCollector:
             data_list = MetricsCollector.third_party_metrics.measure_metrics()
             serialise_data_list = [data.serialize() for data in data_list]
             if save_flag:
+                logger.debug('Sending data from third party API')
                 MetricsAPI.send_metrics(serialise_data_list)
+                logger.debug('Data sent to third party API')
             return serialise_data_list
 
     def start_scheduler(self):
