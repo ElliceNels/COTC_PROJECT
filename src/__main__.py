@@ -20,8 +20,7 @@ def main():
 
     if args.a:
         logger.info('Starting the application')
-        app_thread = threading.Thread(target=launch_app)
-        app_thread.start()
+        launch_app()
     elif args.c:
         try:
             logger.info('Starting the data collector')
