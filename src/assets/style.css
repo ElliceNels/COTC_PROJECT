@@ -15,24 +15,24 @@ h1 {
 
 .dash-graph {
     width: 80%;
-    margin: 20px auto; /* Add margin to all sides of the graph */
+    margin: 20px auto;
     font-size: 14px;
-    padding: 20px; /* Add padding to all sides of the graph */
+    padding: 20px;
 }
 
 .dash-table {
     width: 80%;
-    margin: 20px auto; /* Add margin to all sides of the table */
+    margin: 20px auto;
     font-size: 14px;
-    padding: 20px; /* Add padding to all sides of the table */
+    padding: 20px;
 }
 
 .dash-table thead th {
-    padding: 20px; /* Add padding to the table heading */
+    padding: 20px;
 }
 
 .dash-graph .xtick, .dash-graph .ytick {
-    padding: 20px; /* Add padding to the chart labels */
+    padding: 20px;
 }
 
 .dash-interval {
