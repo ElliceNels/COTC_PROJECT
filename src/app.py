@@ -77,7 +77,7 @@ def create_app():
             page_size=10,
             style_table={'width': '80%', 'margin': 'auto', 'font-size': '14px'}
         ),
-        dcc.Input(id='message-input', type='text', placeholder='Enter a message'),
+        dcc.Input(id='message-input', type='text', placeholder='Enter a Windows app to run'),
         html.Button('Send Message', id='send-message-button'),
         html.Div(id='message-output')
     ])
