@@ -4,8 +4,10 @@ import logging
 from flask import Flask, request, jsonify, redirect
 from sqlalchemy.orm import sessionmaker, joinedload  # Add joinedload import
 from sqlalchemy import create_engine
+from block_timer import BlockTimer
 from config import config
 from datetime import datetime
+from threading import Lock
 
 from data.dto import DeviceDTO, MetricTypeDTO, UnitDTO
 from data.models import Base, MetricReading, Device, MetricType, Unit
@@ -19,8 +21,9 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-# Global variable to store the message
+# Global variable to store the message with a lock for thread safety
 stored_message = None
+message_lock = Lock()
 
 def create_app():
     """Create and configure the Flask application."""
@@ -181,7 +184,6 @@ def create_app():
         State('message-input', 'value')
     )
     def send_message_to_server(n_clicks, message):
-        global stored_message
         if n_clicks:
             logger.debug(f"Attempting to send message: {message}")
             response = requests.post(f"{config.server.url}/send_message", json={'message': message})
@@ -193,6 +195,29 @@ def create_app():
                 return 'Failed to send message.'
         return ''
 
+    @app.route('/send_message', methods=['POST'])
+    def send_message():
+        with BlockTimer("send_message"):
+            global stored_message
+            data = request.get_json()
+            message = data.get('message') if data else None
+            if not message:
+                return jsonify({'error': 'No message provided'}), 400
+
+            with message_lock:
+                stored_message = message
+            logger.info("Sent message: %s", stored_message)
+            return jsonify({"status": "success"}), 200
+
+    @app.route('/poll_message', methods=['GET'])
+    def poll_message():
+        with BlockTimer("poll_message"):
+            global stored_message
+            with message_lock:
+                message = stored_message
+                stored_message = None  # Reset the stored message after a successful poll
+            return jsonify({'message': message}), 200
+
     @app.route('/')
     def landing_page():
         """Landing page route."""
@@ -202,87 +227,69 @@ def create_app():
     @app.route('/store_metrics', methods=['POST'])
     def store_metrics():
         """Store metrics in the database."""
-        metrics_data = request.json
-        if not metrics_data:
-            logger.error('No data provided for storing metrics')
-            return jsonify({'error': 'No data provided'}), 400
+        with BlockTimer("store_metrics"):
+            metrics_data = request.json
+            if not metrics_data:
+                logger.error('No data provided for storing metrics')
+                return jsonify({'error': 'No data provided'}), 400
 
-        session = Session()
-        try:
-            for data in metrics_data:
-                # Map incoming data into DTOs
-                device_dto = DeviceDTO(id=data['device']['id'], name=data['device']['name'])
-                metric_type_dto = MetricTypeDTO(id=data['metric_type']['id'], name=data['metric_type']['name'], min_value=data['metric_type'].get('min_value'), max_value=data['metric_type'].get('max_value'))
-                unit_dto = UnitDTO(id=data['unit']['id'], name=data['unit']['name'], symbol=data['unit'].get('symbol')) if data.get('unit') else None
+            session = Session()
+            try:
+                for data in metrics_data:
+                    # Map incoming data into DTOs
+                    device_dto = DeviceDTO(id=data['device']['id'], name=data['device']['name'])
+                    metric_type_dto = MetricTypeDTO(id=data['metric_type']['id'], name=data['metric_type']['name'], min_value=data['metric_type'].get('min_value'), max_value=data['metric_type'].get('max_value'))
+                    unit_dto = UnitDTO(id=data['unit']['id'], name=data['unit']['name'], symbol=data['unit'].get('symbol')) if data.get('unit') else None
 
-                # Check if Device exists or create it
-                device = session.query(Device).filter_by(id=device_dto.id).first() or \
-                         session.query(Device).filter_by(name=device_dto.name).first()
-                if not device:
-                    device = Device(name=device_dto.name, id=device_dto.id)
-                    session.add(device)
-                
-                session.flush()
+                    # Check if Device exists or create it
+                    device = session.query(Device).filter_by(id=device_dto.id).first() or \
+                            session.query(Device).filter_by(name=device_dto.name).first()
+                    if not device:
+                        device = Device(name=device_dto.name, id=device_dto.id)
+                        session.add(device)
+                    
+                    session.flush()
+                    session.commit()
+
+                    # Check if MetricType exists or create it
+                    metric_type = session.query(MetricType).filter_by(name=metric_type_dto.name).first()
+                    if not metric_type:
+                        metric_type = MetricType(name=metric_type_dto.name, min_value=metric_type_dto.min_value, max_value=metric_type_dto.max_value)
+                        session.add(metric_type)
+                    
+                    session.flush()
+                    session.commit()
+                    
+                    # Check if Unit exists or create it
+                    if unit_dto:
+                        unit = session.query(Unit).filter_by(name=unit_dto.name).first()
+                        if not unit:
+                            unit = Unit(name=unit_dto.name, symbol=unit_dto.symbol)
+                            session.add(unit)
+                    
+                    session.flush()
+                    session.commit()
+
+                    # Create MetricReading record using DTO data
+                    metric_reading = MetricReading(
+                        device_id=device.id,
+                        metric_type_id=metric_type.id,
+                        timestamp=datetime.strptime(data['timestamp'], '%Y-%m-%d %H:%M:%S'),
+                        value=data['value'],
+                        unit_id=unit.id if unit else None
+                    )
+                    session.add(metric_reading)
+
+                # Commit the session
                 session.commit()
-
-                # Check if MetricType exists or create it
-                metric_type = session.query(MetricType).filter_by(name=metric_type_dto.name).first()
-                if not metric_type:
-                    metric_type = MetricType(name=metric_type_dto.name, min_value=metric_type_dto.min_value, max_value=metric_type_dto.max_value)
-                    session.add(metric_type)
-                
-                session.flush()
-                session.commit()
-                
-                # Check if Unit exists or create it
-                if unit_dto:
-                    unit = session.query(Unit).filter_by(name=unit_dto.name).first()
-                    if not unit:
-                        unit = Unit(name=unit_dto.name, symbol=unit_dto.symbol)
-                        session.add(unit)
-                
-                session.flush()
-                session.commit()
-
-                # Create MetricReading record using DTO data
-                metric_reading = MetricReading(
-                    device_id=device.id,
-                    metric_type_id=metric_type.id,
-                    timestamp=datetime.strptime(data['timestamp'], '%Y-%m-%d %H:%M:%S'),
-                    value=data['value'],
-                    unit_id=unit.id if unit else None
-                )
-                session.add(metric_reading)
-
-            # Commit the session
-            session.commit()
-            logger.debug('Metrics stored successfully')
-            return jsonify({'status': 'success'}), 201
-        except Exception as e:
-            session.rollback()
-            logger.error('Error storing metrics: %s', e)
-            return jsonify({'error': 'Failed to store metrics'}), 500
-        finally:
-            session.close()
-
-    @app.route('/send_message', methods=['POST'])
-    def send_message():
-        data = request.get_json()
-        message = data.get('message') if data else None
-        if not message:
-            return jsonify({'error': 'No message provided'}), 400
-
-        global stored_message
-        stored_message = message
-        logger.info("Sent message: %s", stored_message)
-        return jsonify({"status": "success"}), 200
-
-    @app.route('/poll_message', methods=['GET'])
-    def poll_message():
-        global stored_message
-        message = stored_message
-        stored_message = None  # Reset the stored message after a successful poll
-        return jsonify({'message': message}), 200
+                logger.debug('Metrics stored successfully')
+                return jsonify({'status': 'success'}), 201
+            except Exception as e:
+                session.rollback()
+                logger.error('Error storing metrics: %s', e)
+                return jsonify({'error': 'Failed to store metrics'}), 500
+            finally:
+                session.close()
 
     return app
 
