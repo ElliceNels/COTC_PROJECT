@@ -15,7 +15,7 @@ class MetricsAPI:
 
     @staticmethod
     def send_metrics(data: list):
-        # API to send metrics data to the web app
+        """Method to send metrics data to the web app."""   
         url = config.server.url + '/store_metrics'
         headers = {'Content-Type': 'application/json'}
         
