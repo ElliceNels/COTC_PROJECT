@@ -57,7 +57,7 @@ class MetricsCollector:
     # PJ: PC Collector
     @staticmethod
     def collect_local_metrics(save_flag: bool = False):
-        with BlockTimer():
+        with BlockTimer("LOCAL Metrics"):
             data_list = MetricsCollector.local_metrics.measure_metrics()
             serialise_data_list = [data.serialize() for data in data_list]
             if save_flag:
@@ -69,7 +69,7 @@ class MetricsCollector:
     # PJ: Third Party Collector
     @staticmethod
     def collect_tp_metrics(save_flag: bool = False):
-        with BlockTimer():
+        with BlockTimer("THIRD PARTY Metrics"):
             data_list = MetricsCollector.third_party_metrics.measure_metrics()
             serialise_data_list = [data.serialize() for data in data_list]
             if save_flag:
