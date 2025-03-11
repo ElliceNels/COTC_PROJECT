@@ -185,7 +185,8 @@ def create_app():
         if n_clicks:
             logger.debug(f"Attempting to send message: {message}")
             try:
-                response = requests.post(f"{config.server.url}/send_message", json={'message': message}, timeout=10)
+                with BlockTimer("send_message_to_server"):
+                    response = requests.post(f"{config.server.url}/send_message", json={'message': message}, timeout=7)
             except requests.Timeout:
                 logger.error("Request timed out.")
                 return 'Request timed out.'
