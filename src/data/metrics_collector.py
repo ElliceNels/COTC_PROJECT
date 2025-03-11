@@ -40,8 +40,8 @@ class MetricsCollector:
         self.scheduler = BackgroundScheduler()
         MetricsCollector.connect_local_metrics()
         MetricsCollector.connect_tp_metrics()
-        self.scheduler.add_job(MetricsCollector.collect_local_metrics, 'interval', seconds=10, args=[True], max_instances=1)
-        self.scheduler.add_job(MetricsCollector.collect_tp_metrics, 'interval', seconds=10, args=[True], max_instances=1)
+        self.scheduler.add_job(MetricsCollector.collect_local_metrics, 'interval', seconds=12, args=[True], max_instances=1)
+        self.scheduler.add_job(MetricsCollector.collect_tp_metrics, 'interval', seconds=25, args=[True], max_instances=1)
 
     @staticmethod
     def connect_local_metrics():
