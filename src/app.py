@@ -27,7 +27,6 @@ message_lock = Lock()
 
 def create_app():
     """Create and configure the Flask application."""
-
     app: Flask = Flask(config.app_name)
     logger.debug('App "%s" created in %s', app.name, __name__)
 
@@ -91,6 +90,16 @@ def create_app():
         Input('metric-type-dropdown', 'value')
     )
     def update_metrics(n, selected_device, selected_metric_type):
+        """Update the metrics displayed on the dashboard.
+
+        Args:
+            n (int): Number of intervals.
+            selected_device (str): Selected device ID.
+            selected_metric_type (str): Selected metric type ID.
+
+        Returns:
+            tuple: Updated gauge figure, historical plot figure, and table data.
+        """
         session = Session()
 
         query = session.query(MetricReading).options(joinedload(MetricReading.metric_type), joinedload(MetricReading.device), joinedload(MetricReading.unit))
@@ -182,6 +191,15 @@ def create_app():
         State('message-input', 'value')
     )
     def send_message_to_server(n_clicks, message):
+        """Send a message to the server.
+
+        Args:
+            n_clicks (int): Number of button clicks.
+            message (str): Message to send.
+
+        Returns:
+            str: Response message.
+        """
         if n_clicks:
             logger.debug(f"Attempting to send message: {message}")
             try:
@@ -203,6 +221,11 @@ def create_app():
 
     @app.route('/send_message', methods=['POST'])
     def send_message():
+        """Endpoint to send a message.
+
+        Returns:
+            Response: JSON response with status.
+        """
         with BlockTimer("send_message"):
             global stored_message
             data = request.get_json()
@@ -217,6 +240,11 @@ def create_app():
 
     @app.route('/poll_message', methods=['GET'])
     def poll_message():
+        """Endpoint to poll for a message.
+
+        Returns:
+            Response: JSON response with message.
+        """
         with BlockTimer("poll_message"):
             global stored_message
             with message_lock:
@@ -226,13 +254,20 @@ def create_app():
 
     @app.route('/')
     def landing_page():
-        """Landing page route."""
+        """Landing page route.
+
+        Returns:
+            Response: Redirect to dashboard.
+        """
         return redirect('/dashboard/')
 
-    # PJ: Aggregator API (Stores in the DB)
     @app.route('/store_metrics', methods=['POST'])
     def store_metrics():
-        """Store metrics in the database."""
+        """Store metrics in the database.
+
+        Returns:
+            Response: JSON response with status.
+        """
         with BlockTimer("store_metrics"):
             metrics_data = request.json
             if not metrics_data:
@@ -301,7 +336,6 @@ def create_app():
 
 def launch_app():
     """Launch the Flask application."""
-
     app: Flask = create_app()
     app.run(
         host=config.server.host,

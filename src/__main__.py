@@ -14,7 +14,6 @@ stop_event = threading.Event()
 
 def main():
     """Entry function."""
-
     parser = argparse.ArgumentParser(description='Run the collector server.')
     parser.add_argument('-c', action='store_true', help='Run the collector server')
     parser.add_argument('-a', action='store_true', help='Run the web app')

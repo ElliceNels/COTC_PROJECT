@@ -11,11 +11,16 @@ import subprocess
 logger = logging.getLogger(__name__)
 
 class MetricsAPI:
+    """Class to handle metrics API interactions."""
     failed_data = []
 
     @staticmethod
     def send_metrics(data: list):
-        """Method to send metrics data to the web app."""   
+        """Send metrics data to the web app.
+
+        Args:
+            data (list): List of metrics data to send.
+        """
         url = config.server.url + '/store_metrics'
         headers = {'Content-Type': 'application/json'}
         
@@ -49,7 +54,11 @@ class MetricsAPI:
 
     @staticmethod
     def poll_for_message(interval: int = 3):
-        """Poll for a message from the web app at regular intervals."""
+        """Poll for a message from the web app at regular intervals.
+
+        Args:
+            interval (int): Interval in seconds between polls.
+        """
         logger.info("Beginning polling for messages")
         while True:
             data = requests.get(config.server.url + '/poll_message')
@@ -59,6 +68,11 @@ class MetricsAPI:
             sleep(interval)
 
 def _open_win_app(app_name: str):
+    """Open a Windows application.
+
+    Args:
+        app_name (str): Name of the application to open.
+    """
     if os.name == 'nt':  # For Windows
         try:
             # Sanitize app_name to prevent command injection

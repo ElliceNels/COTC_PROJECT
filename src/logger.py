@@ -25,4 +25,3 @@ def setup_logger():
             logging.StreamHandler()
         ])
     logger.info('Logger is setup')
-    

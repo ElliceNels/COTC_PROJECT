@@ -5,12 +5,14 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 class Device(Base):
+    """Model representing a device."""
     __tablename__ = 'devices'
     id = Column(String, primary_key=True)
     name = Column(String, nullable=False, unique=True)
     metric_readings = relationship('MetricReading', back_populates='device')
 
 class MetricType(Base):
+    """Model representing a type of metric."""
     __tablename__ = 'metric_types'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False, unique=True)
@@ -19,6 +21,7 @@ class MetricType(Base):
     metric_readings = relationship('MetricReading', back_populates='metric_type')
 
 class Unit(Base):
+    """Model representing a unit of measurement."""
     __tablename__ = 'units'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False, unique=True)
@@ -26,6 +29,7 @@ class Unit(Base):
     metric_readings = relationship('MetricReading', back_populates='unit')
 
 class MetricReading(Base):
+    """Model representing a metric reading."""
     __tablename__ = 'metric_readings'
     id = Column(Integer, primary_key=True, autoincrement=True)
     device_id = Column(Integer, ForeignKey('devices.id'), nullable=False)

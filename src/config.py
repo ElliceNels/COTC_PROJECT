@@ -44,7 +44,6 @@ class Config(BaseModel):
 
     def __new__(cls, *args, **kwargs):
         """Singleton pattern enforcing on Config class creation."""
-
         if cls._instance is None:
             # Instantiate the Config class
             cls._instance = super(Config, cls).__new__(cls)
@@ -52,11 +51,13 @@ class Config(BaseModel):
         return cls._instance
 
     def __init__(self, rel_path: str = "config.json"):
-        """Load the configuration from a JSON file."""
+        """Load the configuration from a JSON file.
 
+        Args:
+            rel_path (str): Relative path to the configuration file.
+        """
         script_dir = Path(__file__).parent
         filepath = script_dir / rel_path
-
 
         # Load the JSON config file
         try:

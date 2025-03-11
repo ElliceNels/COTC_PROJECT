@@ -16,6 +16,8 @@ from sdk.metrics_api import MetricsAPI
 logger = logging.getLogger(__name__)
 
 class MetricsCollector:
+    """Class to collect metrics."""
+
     local_metrics: Metrics = Metrics(
         device_dto=DeviceDTO(
             id=uuid.uuid5(
@@ -37,6 +39,7 @@ class MetricsCollector:
     )
 
     def __init__(self):
+        """Initialize the MetricsCollector class."""
         self.scheduler = BackgroundScheduler()
         MetricsCollector.connect_local_metrics()
         MetricsCollector.connect_tp_metrics()
@@ -45,18 +48,25 @@ class MetricsCollector:
 
     @staticmethod
     def connect_local_metrics():
+        """Connect local metrics."""
         MetricsCollector.local_metrics.add_metric(CPUTimes())
         MetricsCollector.local_metrics.add_metric(RAMUsage())
         MetricsCollector.local_metrics.add_metric(NetworkSend())
 
     @staticmethod
     def connect_tp_metrics():
+        """Connect third-party metrics."""
         MetricsCollector.third_party_metrics.add_metric(TemperatureInItaly())
         MetricsCollector.third_party_metrics.add_metric(TemperatureFeelInItaly())
 
     # PJ: PC Collector
     @staticmethod
     def collect_local_metrics(save_flag: bool = False):
+        """Collect local metrics.
+
+        Args:
+            save_flag (bool): Flag to indicate whether to save the metrics.
+        """
         with BlockTimer("LOCAL Metrics"):
             data_list = MetricsCollector.local_metrics.measure_metrics()
             serialise_data_list = [data.serialize() for data in data_list]
@@ -69,6 +79,11 @@ class MetricsCollector:
     # PJ: Third Party Collector
     @staticmethod
     def collect_tp_metrics(save_flag: bool = False):
+        """Collect third-party metrics.
+
+        Args:
+            save_flag (bool): Flag to indicate whether to save the metrics.
+        """
         with BlockTimer("THIRD PARTY Metrics"):
             data_list = MetricsCollector.third_party_metrics.measure_metrics()
             serialise_data_list = [data.serialize() for data in data_list]
@@ -79,9 +94,11 @@ class MetricsCollector:
             return serialise_data_list
 
     def start_scheduler(self):
+        """Start the scheduler."""
         self.scheduler.start()
         logger.info('Scheduler started')
 
     def stop_scheduler(self):
+        """Stop the scheduler."""
         self.scheduler.shutdown()
         logger.info('Scheduler stopped')
