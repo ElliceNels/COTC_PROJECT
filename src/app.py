@@ -184,7 +184,14 @@ def create_app():
     def send_message_to_server(n_clicks, message):
         if n_clicks:
             logger.debug(f"Attempting to send message: {message}")
-            response = requests.post(f"{config.server.url}/send_message", json={'message': message})
+            try:
+                response = requests.post(f"{config.server.url}/send_message", json={'message': message}, timeout=10)
+            except requests.Timeout:
+                logger.error("Request timed out.")
+                return 'Request timed out.'
+            except requests.RequestException as e:
+                logger.error(f"Request failed: {e}")
+                return 'Failed to send message.'
             if response.status_code == 200:
                 logger.debug("Message sent successfully!")
                 return 'Message sent successfully!'
