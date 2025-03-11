@@ -22,7 +22,7 @@
         "appid": "fa728ee9341a1745cc22a7d6478a18b7",
         "units": "metric"
       },
-      "cache_timeout_m": 0.1
+      "cache_timeout_m": 0.15
     },
 
     "database": {
