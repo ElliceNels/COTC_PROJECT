@@ -16,8 +16,8 @@ def main():
     """Entry function."""
 
     parser = argparse.ArgumentParser(description='Run the collector server.')
-    parser.add_argument('-c', action='store_true', help='Enable the collector server')
-    parser.add_argument('-a', action='store_true', help='Enable the web app')
+    parser.add_argument('-c', action='store_true', help='Run the collector server')
+    parser.add_argument('-a', action='store_true', help='Run the web app')
     args = parser.parse_args()
 
     if args.a:
