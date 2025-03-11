@@ -14,4 +14,4 @@ class BlockTimer:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.end = time.perf_counter()
         elapsed_time = self.end - self.start
-        logger.info(f"{self.block_name} executed in: {elapsed_time:.4f} seconds")
+        logger.debug(f"{self.block_name} executed in: {elapsed_time:.4f} seconds")
