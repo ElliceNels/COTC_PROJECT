@@ -19,6 +19,9 @@ import requests
 
 logger = logging.getLogger(__name__)
 
+# Global variable to store the message
+stored_message = None
+
 def create_app():
     """Create and configure the Flask application."""
 
@@ -178,6 +181,7 @@ def create_app():
         State('message-input', 'value')
     )
     def send_message_to_server(n_clicks, message):
+        global stored_message
         if n_clicks:
             logger.debug(f"Attempting to send message: {message}")
             response = requests.post(f"{config.server.url}/send_message", json={'message': message})
@@ -263,16 +267,22 @@ def create_app():
 
     @app.route('/send_message', methods=['POST'])
     def send_message():
-        """Send a message to all WebSocket clients."""
-        data = request.json
-        message = data.get('message')
+        data = request.get_json()
+        message = data.get('message') if data else None
         if not message:
             return jsonify({'error': 'No message provided'}), 400
 
-        # Send message
+        global stored_message
+        stored_message = message
+        logger.info("Sent message: %s", stored_message)
+        return jsonify({"status": "success"}), 200
 
-        logger.info("Sent message: %s", message)
-        return jsonify({'status': 'Message sent successfully!'}), 200
+    @app.route('/poll_message', methods=['GET'])
+    def poll_message():
+        global stored_message
+        message = stored_message
+        stored_message = None  # Reset the stored message after a successful poll
+        return jsonify({'message': message}), 200
 
     return app
 

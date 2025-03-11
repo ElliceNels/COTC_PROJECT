@@ -5,6 +5,8 @@ from data.metrics_collector import MetricsCollector
 from logger import setup_logger
 import threading
 
+from sdk.metrics_api import MetricsAPI
+
 setup_logger()
 
 logger = logging.getLogger(__name__)
@@ -26,6 +28,7 @@ def main():
             logger.info('Starting the data collector')
             mc = MetricsCollector()
             mc.start_scheduler()
+            threading.Thread(target=MetricsAPI.poll_for_message, daemon=True).start()
             # Keep the main thread alive efficiently
             while not stop_event.is_set():
                 stop_event.wait(1)
