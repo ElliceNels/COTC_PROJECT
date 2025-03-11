@@ -1,5 +1,6 @@
 """Flask application module."""
 
+import json
 import logging
 from flask import Flask, request, jsonify, redirect
 from sqlalchemy.orm import sessionmaker, joinedload  # Add joinedload import
@@ -14,7 +15,6 @@ from data.models import Base, MetricReading, Device, MetricType, Unit
 from dash import dcc, html, dash_table
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output, State
-from flask_caching import Cache
 from sqlalchemy.sql import func
 import dash
 import requests
@@ -30,7 +30,6 @@ def create_app():
 
     app: Flask = Flask(config.app_name)
     logger.debug('App "%s" created in %s', app.name, __name__)
-    cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
     engine = create_engine(config.database.db_engine)
     Base.metadata.create_all(engine)
@@ -91,7 +90,6 @@ def create_app():
         Input('device-dropdown', 'value'),
         Input('metric-type-dropdown', 'value')
     )
-    @cache.memoize(timeout=5)
     def update_metrics(n, selected_device, selected_metric_type):
         session = Session()
 
