@@ -207,7 +207,7 @@ def create_app():
                     response = requests.post(f"{config.server.url}/send_message", json={'message': message}, timeout=7)
             except requests.Timeout:
                 logger.error("Request timed out.")
-                return 'Request timed out.'
+                return 'Request timed out, message sending'
             except requests.RequestException as e:
                 logger.error(f"Request failed: {e}")
                 return 'Failed to send message.'
